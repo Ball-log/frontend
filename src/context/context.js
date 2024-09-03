@@ -29,6 +29,7 @@ const ContextProvider = ({children}) => {
             }
         },
         patch: async (post_id, req) => {
+            console.log("~~~~", post_id, req)
             try {
                 await community_api.patch(post_id, req);
             } catch (error) {

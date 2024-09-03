@@ -4,13 +4,14 @@ import styled from 'styled-components/native'
 import { Feather, AntDesign } from '@expo/vector-icons';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import * as ImagePicker from 'expo-image-picker';
-import { communityContext } from '../../api/community/community.context';
+import { Context } from '../../context/context';
 
 export default function ComuWriteScreen() {
   const navigation = useNavigation();
   const route = useRoute();
-  const { community_context, postData, postList } = useContext(communityContext);
+  const { community_context, postData, postList } = useContext(Context);
   const previousPost = route.params;
+  console.log(previousPost)
   const [post, setPost] = useState(() => ({
     post_id: '',
     title: '',
@@ -19,8 +20,8 @@ export default function ComuWriteScreen() {
     type: previousPost.type,
   }));
   useEffect(() => {
-    if (previousPost.post_id) {
-        setPost(previousPost);
+    if (previousPost.isPatch) {
+        setPost(postData);
     }
   }, [route]);
 
@@ -42,19 +43,19 @@ export default function ComuWriteScreen() {
     }
 
     let updatedPost_id = post.post_id;
-
-    if (previousPost.post_id) {
-        await community_context.patch(previousPost.post_id, post);
+    console.log("write", previousPost)
+    if (previousPost.isPatch) {
+        await community_context.patch(postData.post_id, post);
         navigation.navigate('ComuPostedScreen', {
             post_id: updatedPost_id,
-            type: post.type
+            type: previousPost.type
         });
     } else {
         updatedPost_id = await community_context.post(post); // 새로운 게시글을 Context에 추가
-        await community_context.get_list(post.type);
+        await community_context.get_list(previousPost.type);
         navigation.navigate('MainTabs', {
             screen: '커뮤니티',
-            params: { type: post.type }
+            params: { type: previousPost.type }
             });
         };
     }

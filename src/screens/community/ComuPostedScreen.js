@@ -7,13 +7,13 @@ import { CommentsContext } from '../../Context API/CommentsContext';
 import { getRandomPastelColor } from '../../utils/colors';
 import ReplyIconImg from '../../assets/icons/replyicon.png';
 import { Ionicons, AntDesign, MaterialCommunityIcons, Feather } from '@expo/vector-icons';
-import { communityContext } from '../../api/community/community.context';
+import { Context } from '../../context/context';
 
 export default function ComuPostedScreen() {
   const route = useRoute();
   const navigation = useNavigation();
   const {comments, addComment, addReply, getTotalCommentCount} = useContext(CommentsContext);
-  const { community_context, postData, postList } = useContext(communityContext);
+  const { community_context, postData, postList } = useContext(Context);
   const [selectedType, setSelectedType] = useState(type);
   const [showModal, setShowModal] = useState(false);
   const [modalType, setModalType] = useState('');
@@ -31,6 +31,14 @@ export default function ComuPostedScreen() {
     };
     setPostData()
   }, [])
+  useEffect(() => {
+    console.log("!!!!", route.params)
+    const setPostData = async () => {
+      await community_context.get(post_id);
+      setSelectedType(type)
+    };
+    setPostData()
+  }, [route])
   const userCircleColors = useMemo(() => {
     return postComments.reduce((colors, comment) => {
       colors[comment.id] = getRandomPastelColor();
@@ -88,7 +96,7 @@ export default function ComuPostedScreen() {
   };
 
   const handleEditPress = () => {
-    navigation.navigate('ComuWriteScreen', postData);
+    navigation.navigate('ComuWriteScreen', { isPatch:true, type: selectedType });
   };
 
   const handleDeletePress = async () => {
@@ -137,6 +145,7 @@ export default function ComuPostedScreen() {
           <Ionicons name="chevron-back" size={24} color="black" />
         </BackButton>
         <ScreenTitleWrapper>
+          {console.log(selectedType)}
           <ScreenTitle>{selectedType === 'league' ? ('리그 커뮤니티') : ('마이팀 커뮤니티')}</ScreenTitle>
         </ScreenTitleWrapper>
       </ComuPostedHeader>

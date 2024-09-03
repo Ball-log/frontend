@@ -15,7 +15,7 @@ import NotificationScreen from "../screens/NotificationScreen";
 import CheckBlog from "../screens/CheckBlogScreen";
 import CheckMVP from "../screens/CheckMvpScreen";
 import PostScreen from "../screens/PostScreen";
-import Comment from "../screens/CommentScreen";
+import Comment from "../screens/comment/CommentScreen";
 import Modify from "../screens/ModifyScreen";
 
 const Stack = createStackNavigator();

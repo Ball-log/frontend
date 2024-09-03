@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import styled from "styled-components/native";
 import {
   KeyboardAvoidingView,
@@ -9,13 +9,12 @@ import {
 } from "react-native";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { Ionicons, Feather } from "@expo/vector-icons";
-import axios from "axios";
-import { API_TOKEN } from "@env";
+import { Context } from '../../context/context';
 
 const Comment = () => {
+  const { community_context, postData, postList } = useContext(Context);
   const navigation = useNavigation();
   const route = useRoute();
-  console.log(route.paramsr)
   // Extract both `post_id` and `post_id_mvp` from route params
   const { post_id, post_id_mvp } = route.params;
 
@@ -27,8 +26,6 @@ const Comment = () => {
   const [newReply, setNewReply] = useState("");
   const [selectedCommentId, setSelectedCommentId] = useState(null);
   const [keyboardHeight, setKeyboardHeight] = useState(0);
-
-  const [postData, setPostData] = useState(route.params);
 
   useEffect(() => {
     const keyboardDidShowListener = Keyboard.addListener(
@@ -97,7 +94,7 @@ const Comment = () => {
               <Ionicons name="chevron-back" size={24} color="black" />
             </BackButton>
             <CommentWrapper>
-              <CommentIcon source={require("../assets/Chat.png")} />
+              <CommentIcon source={require("../../assets/Chat.png")} />
               <CommentText>
                 댓글 {blogData ? blogData.comment_list.length : "Loading..."}
               </CommentText>
@@ -118,7 +115,7 @@ const Comment = () => {
                           <UserInfo>
                             <UserNameWrapper>
                               <UserImage
-                                source={require("../assets/Profile.png")}
+                                source={require("../../assets/Profile.png")}
                               />
                               <UserName>
                                 {comment.comment_user_name}
@@ -158,10 +155,10 @@ const Comment = () => {
                                     <UserInfo>
                                       <UserNameWrapper>
                                         <ReplyIcon
-                                          source={require("../assets/ReplyIcon.png")}
+                                          source={require("../../assets/ReplyIcon.png")}
                                         />
                                         <UserImage
-                                          source={require("../assets/Profile.png")}
+                                          source={require("../../assets/Profile.png")}
                                         />
                                         <UserName>
                                           {reply.reply_user_name}
@@ -189,7 +186,7 @@ const Comment = () => {
             </ScrollView>
             <CommentsFooter>
               <InputBoxWrapper>
-                <UserImage source={require("../assets/Profile.png")} />
+                <UserImage source={require("../../assets/Profile.png")} />
                 {selectedCommentId ? (
                   <CommentInputBox
                     placeholder="답글을 입력해주세요"
