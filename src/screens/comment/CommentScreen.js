@@ -12,16 +12,11 @@ import { Ionicons, Feather } from "@expo/vector-icons";
 import { Context } from '../../context/context';
 
 const Comment = () => {
-  const { community_context, postData, postList } = useContext(Context);
+  
+  const { comment_context, community_context, reply_context, postData } = useContext(Context);
   const navigation = useNavigation();
   const route = useRoute();
-  // Extract both `post_id` and `post_id_mvp` from route params
-  const { post_id, post_id_mvp } = route.params;
-
-  // Determine which ID to use
-  const resolvedPostId = post_id_mvp || post_id;
-
-  const [blogData, setBlogData] = useState(null);
+  const [ type, setType ] = useState(route.params.type)
   const [newComment, setNewComment] = useState("");
   const [newReply, setNewReply] = useState("");
   const [selectedCommentId, setSelectedCommentId] = useState(null);
@@ -47,9 +42,6 @@ const Comment = () => {
     };
   }, []);
 
-  useEffect(() => {
-    setPostData(route.params);
-  }, [route.params]);
 
   const handleDismissKeyboard = () => {
     Keyboard.dismiss();
@@ -60,6 +52,16 @@ const Comment = () => {
     if (!newComment.trim()) return;
 
     try {
+      const req = {
+      "body": newComment,
+      "post_id": postData.post_id,
+      "post_user_id": postData.user_id,
+      "post_type": postData.post_type
+      }
+      setNewComment("")
+      await comment_context.post(req);
+      await community_context.get(postData.post_id)
+      await community_context.get_list(type)
       
     } catch (error) {
       console.error("Error submitting comment:", error);
@@ -67,7 +69,7 @@ const Comment = () => {
   };
 
   const getRepliesForComment = (commentId) => {
-    return blogData.reply_list.filter(
+    return postData.reply_list.filter(
       (reply) => reply.commented_id === commentId
     );
   };
@@ -76,13 +78,24 @@ const Comment = () => {
     if (!newReply.trim()) return;
 
     try {
+      const req = {
+        "body": newReply,
+        "post_id": postData.post_id,
+        "post_user_id": postData.user_id,
+        "comment_id": selectedCommentId,
+        "post_type": postData.post_type
+        }
+        setNewReply("")
+      await reply_context.post(req);
+      await community_context.get(postData.post_id)
+      await community_context.get_list(type)
     } catch (error) {
       console.error("Error submitting reply:", error);
     }
   };
 
   return (
-    <TouchableWithoutFeedback onPress={handleDismissKeyboard}>
+    <TouchableWithoutFeedback >
       <Wrapper>
         <KeyboardAvoidingView
           style={{ flex: 1 }}
@@ -96,36 +109,31 @@ const Comment = () => {
             <CommentWrapper>
               <CommentIcon source={require("../../assets/Chat.png")} />
               <CommentText>
-                댓글 {blogData ? blogData.comment_list.length : "Loading..."}
+                댓글 {postData ? postData.comment_count : "Loading..."}
               </CommentText>
             </CommentWrapper>
           </CommentHeader>
           <ContentWrapper>
             <ScrollView
+              keyboardShouldPersistTaps="handled"
               contentContainerStyle={{
                 flexGrow: 1,
                 paddingBottom: keyboardHeight + 80,
               }}
             >
+              <TouchableWithoutFeedback onPress={handleDismissKeyboard}>
               <Container>
-                {blogData && blogData.comment_list
-                  ? blogData.comment_list.map((comment) => (
+                {postData && postData.comment_list
+                  ? postData.comment_list.map((comment) => (
                       <CommentsBoxWrapper key={comment.comment_id}>
                         <CommentsBox>
                           <UserInfo>
                             <UserNameWrapper>
                               <UserImage
-                                source={require("../../assets/Profile.png")}
+                                source={{uri: postData.user_icon_url}}
                               />
                               <UserName>
                                 {comment.comment_user_name}
-                                {"  "}
-                                {comment.comment_user_id ==
-                                  blogData.user_id && (
-                                  <MeBox>
-                                    <Me>나</Me>
-                                  </MeBox>
-                                )}
                               </UserName>
                             </UserNameWrapper>
                           </UserInfo>
@@ -134,14 +142,42 @@ const Comment = () => {
                               {comment.comment_body}
                             </CommentDetail>
                             <DetailFooter>
-                              <DateTime>{comment.comment_date}</DateTime>
+                            
+                              <DateTime>{`${comment.comment_date.split("T")[0]} | ${comment.comment_date.split("T")[1].split(".")[0]}`}</DateTime>
                               <ReplyButton
                                 onPress={() =>
-                                  setSelectedCommentId(comment.comment_id)
+                                  {
+                                    setSelectedCommentId(comment.comment_id)
+                                    setNewReply("")
+                                  }
                                 }
                               >
                                 <ReplyButtonText>답글</ReplyButtonText>
                               </ReplyButton>
+                              {postData.isMine === true ? (
+                                <>
+                                  <ReplyButton
+                                    onPress={() =>
+                                      {
+                                        setSelectedCommentId(comment.comment_id)
+                                        setNewReply("")
+                                      }
+                                    }
+                                  >
+                                    <ReplyButtonText>수정</ReplyButtonText>
+                                  </ReplyButton>
+                                  <ReplyButton
+                                    onPress={() =>
+                                      {
+                                        setSelectedCommentId(comment.comment_id)
+                                        setNewReply("")
+                                      }
+                                    }
+                                  >
+                                    <ReplyButtonText>삭제</ReplyButtonText>
+                                  </ReplyButton>
+                                </>
+                              ) : null }
                             </DetailFooter>
                           </DetailTimeWrapper>
                         </CommentsBox>
@@ -158,10 +194,10 @@ const Comment = () => {
                                           source={require("../../assets/ReplyIcon.png")}
                                         />
                                         <UserImage
-                                          source={require("../../assets/Profile.png")}
+                                          source={{uri: postData.user_icon_url}}
                                         />
                                         <UserName>
-                                          {reply.reply_user_name}
+                                          {comment.comment_user_name}
                                         </UserName>
                                       </UserNameWrapper>
                                     </UserInfo>
@@ -170,7 +206,31 @@ const Comment = () => {
                                         {reply.reply_body}
                                       </CommentDetail>
                                       <DetailFooter>
-                                        <DateTime>{reply.reply_date}</DateTime>
+                                        <DateTime>{`${reply.reply_date.split("T")[0]} | ${reply.reply_date.split("T")[1].split(".")[0]}`}</DateTime>
+                                        {postData.isMine === true ? (
+                                          <>
+                                            <ReplyButton
+                                              onPress={() =>
+                                                {
+                                                  setSelectedCommentId(comment.comment_id)
+                                                  setNewReply("")
+                                                }
+                                              }
+                                            >
+                                              <ReplyButtonText>수정</ReplyButtonText>
+                                            </ReplyButton>
+                                            <ReplyButton
+                                              onPress={() =>
+                                                {
+                                                  setSelectedCommentId(comment.comment_id)
+                                                  setNewReply("")
+                                                }
+                                              }
+                                            >
+                                              <ReplyButtonText>삭제</ReplyButtonText>
+                                            </ReplyButton>
+                                          </>
+                                        ) : null }
                                       </DetailFooter>
                                     </DetailTimeWrapper>
                                   </CommentsBox>
@@ -183,10 +243,11 @@ const Comment = () => {
                     ))
                   : null}
               </Container>
+              </TouchableWithoutFeedback>
             </ScrollView>
             <CommentsFooter>
               <InputBoxWrapper>
-                <UserImage source={require("../../assets/Profile.png")} />
+                <UserImage source={{uri: postData.user_icon_url}} />
                 {selectedCommentId ? (
                   <CommentInputBox
                     placeholder="답글을 입력해주세요"

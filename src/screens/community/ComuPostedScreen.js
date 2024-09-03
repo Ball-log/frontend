@@ -135,8 +135,6 @@ export default function ComuPostedScreen() {
     handleReplySubmit();
   }
 
-  const totalCommentCount = getTotalCommentCount(postData.post_id);
-
   return (
     <Wrapper>
 
@@ -154,10 +152,8 @@ export default function ComuPostedScreen() {
         <ComuPostedBox>
           <WriterInfoBox>
             <WriterNameWrapper>
-                <WriterCircle>
-                  <FirstName>{postData.user_name}</FirstName>
-                </WriterCircle>
-                <WriterName>{postData.user_name || '사용자'}</WriterName>
+              <UserImage source={{uri: postData.user_icon_url}} />
+              <WriterName>{postData.user_name || '사용자'}</WriterName>
             </WriterNameWrapper>
             <DateTime>{`${postData.created_at.split("T")[0]} | ${postData.created_at.split("T")[1].split(".")[0]}`}</DateTime>
           </WriterInfoBox>
@@ -191,7 +187,7 @@ export default function ComuPostedScreen() {
               </LikeIcon>
               <LikeCount>{postData.like_count}</LikeCount>
               <ChatIcon
-                onPress={() => navigation.navigate("Comment", postData )}
+                onPress={() => navigation.navigate("Comment", {type:type} )}
               >
                 <MaterialCommunityIcons
                   name="message-reply-outline"
@@ -199,7 +195,7 @@ export default function ComuPostedScreen() {
                   color="#8892F7"
                 />
               </ChatIcon>
-              <ChatCount>{totalCommentCount}</ChatCount>
+              <ChatCount>{postData.comment_count}</ChatCount>
             </IconWrapper>
             {
               postData.isMine === true ? (
@@ -271,7 +267,7 @@ export default function ComuPostedScreen() {
       <CommentsFooter>
         <InputBoxWrapper>
           <UserCircle2 color={getRandomPastelColor()}>
-            <UserFirstName>{postData.user_name}</UserFirstName>
+            <UserImage source={{uri: postData.user_icon_url}} />
           </UserCircle2>
           {replyToCommentId ? (
             <ReplyInputBox 
@@ -575,7 +571,11 @@ const ReplyButtonText = styled.Text`
   font-size: 9px;
   color: #AAAAAA;
 `;
-
+const UserImage = styled.Image`
+  width: 30px;
+  height: 30px;
+  border-radius: 15px;
+`;
 const ReplyBox = styled.View`
   padding-top: 13px;
   padding-bottom: 13px;
