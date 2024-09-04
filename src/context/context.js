@@ -3,6 +3,7 @@ import { community_api } from '../api/community/community.api';
 import { community_error } from '../api/community/community.error';
 import { comment_api } from '../api/api-utils/comment.api';
 import { reply_api } from '../api/api-utils/reply.api';
+import { post_like_api } from '../api/api-utils/post_like.api';
 
 const Context = React.createContext();
 const ContextProvider = ({children}) => {
@@ -17,7 +18,6 @@ const ContextProvider = ({children}) => {
             try {
                 const response = await community_api.get(post_id);
                 setPostData(response.result);
-                console.log("postData: ", response.result);
             } catch (error) {
                 community_error.get(error);
             }
@@ -30,7 +30,6 @@ const ContextProvider = ({children}) => {
             }
         },
         patch: async (post_id, req) => {
-            console.log("~~~~", post_id, req)
             try {
                 await community_api.patch(post_id, req);
             } catch (error) {
@@ -104,8 +103,17 @@ const ContextProvider = ({children}) => {
             }
         }
     }
+    const post_like_context = {
+        post: async (req) => {
+            try {
+                await post_like_api.post(req);
+            } catch (error) {
+                //post_like_error.post(error);
+            }
+        }
+    }
     return (
-        <Context.Provider value={{ community_context, reply_context, comment_context, postData, postList }}>
+        <Context.Provider value={{ post_like_context, community_context, reply_context, comment_context, postData, postList }}>
             {children}
         </Context.Provider>
     );
