@@ -1,4 +1,4 @@
-import { api } from './../../Context API/api';
+import { api } from '../api';
 
 export const reply_api = {
     post: async (req) =>{
