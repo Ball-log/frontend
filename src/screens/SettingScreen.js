@@ -11,7 +11,6 @@ const SettingScreen = ({route}) => {
   const [image, setImage] = useState(null);
   const { team, profileImgUrl } = route.params || {};
   const data = route.params?.data;
-  console.log('profileImgUrl: ', profileImgUrl);
 
   const pickImage = async () => {
     const permissionResult =

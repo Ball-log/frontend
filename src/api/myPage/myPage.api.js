@@ -7,7 +7,6 @@ export const myPage_api = {
         const result = await axios.get("https://api.ballog.store/myPage", {
         headers: headers
     });
-        console.log("!!!", result.data.result);
         return result.data.result;
     }, 
     get_post: async (date) => {

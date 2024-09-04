@@ -3,7 +3,7 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import HomeScreen from "../screens/HomeScreen";
 import PostScreen from "../screens/PostScreen";
 import ClipsScreen from "../screens/ClipsScreen";
-import CommunityScreen from "../screens/CommunityScreen";
+import CommunityScreen from "../screens/community/CommunityScreen";
 import MyPageStackNavigator from "./MyPageStackNavigator";
 import { Ionicons } from "@expo/vector-icons";
 import { colors } from "../global";

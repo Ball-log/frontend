@@ -28,7 +28,6 @@ const ProfileImage = () => {
           });
           setUserName(response.data.result.user_name); // Set user_name to state
           setUserIcon(response.data.result.user_icon); // Set user_icon URL to state
-          console.log('response.data: ', response.data);
         }
       } catch (error) {
         console.error('Error fetching data:', error, "여기야?");

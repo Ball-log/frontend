@@ -5,7 +5,7 @@ import { AntDesign } from '@expo/vector-icons';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useNavigation, useRoute } from '@react-navigation/native';
 
-export default function ComuPostList({posts, getPostById, getTotalCommentCount, type}) {
+export default function ComuPostList({posts, type}) {
   const route = useRoute();
   const navigation = useNavigation();
   if (!posts || posts.length === 0) {
@@ -20,7 +20,7 @@ export default function ComuPostList({posts, getPostById, getTotalCommentCount, 
     <ScrollWrapper showsVerticalScrollIndicator={false}>
       <ComuBoxWrapper>
         {posts.map((post, index) => {
-          const totalCommentCount = getTotalCommentCount(post.post_id);
+          const totalCommentCount = post.comment_count;
           console.log(`렌더링 중인 게시글 id: ${post.post_id}, 댓글 수: ${totalCommentCount}`);
             return(
               <ComuBox 
@@ -51,7 +51,7 @@ export default function ComuPostList({posts, getPostById, getTotalCommentCount, 
                       </ChatIcon>
                       <ChatCount>{totalCommentCount}</ChatCount>
                     </IconWrapper>
-                    <DateTime>{`| ${post.created_at.split("T")[0]} ${post.created_at.split("T")[1].split(".")[0]}} | ${post.user_name}`}</DateTime>
+                    <DateTime>{`| ${post.created_at.split("T")[0]} ${post.created_at.split("T")[1].split(".")[0]} | ${post.user_name}`}</DateTime>
                   </ComuFooter>
                 </DetailBox>
                 {post.img_urls && post.img_urls.length > 0 && (

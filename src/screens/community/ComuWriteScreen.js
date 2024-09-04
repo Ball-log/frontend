@@ -4,25 +4,23 @@ import styled from 'styled-components/native'
 import { Feather, AntDesign } from '@expo/vector-icons';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import * as ImagePicker from 'expo-image-picker';
-import { PostsContext } from '../Context API/PostsContext';
+import { Context } from '../../context/context';
 
 export default function ComuWriteScreen() {
   const navigation = useNavigation();
   const route = useRoute();
-  const {addPost, updatePost, getPostById} = useContext(PostsContext);
-  const paramContent = route.params;
+  const { community_context, postData, postList } = useContext(Context);
+  const previousPost = route.params;
   const [post, setPost] = useState(() => ({
     post_id: '',
     title: '',
     content: '',
     img_urls: [],
-    type: paramContent.type,
+    type: previousPost.type,
   }));
-
   useEffect(() => {
-    
-    if (paramContent.post_id) {
-        setPost(paramContent);
+    if (previousPost.isPatch) {
+        setPost(postData);
     }
   }, [route]);
 
@@ -44,26 +42,18 @@ export default function ComuWriteScreen() {
     }
 
     let updatedPost_id = post.post_id;
-
-    if (paramContent.post_id) {
-        await updatePost(post);
+    if (previousPost.isPatch) {
+        await community_context.patch(postData.post_id, post);
         navigation.navigate('ComuPostedScreen', {
             post_id: updatedPost_id,
-            type: post.type,
-            postData: post // 수정된 게시글 데이터를 전달
+            type: previousPost.type
         });
     } else {
-        updatedPost_id = await addPost(post); // 새로운 게시글을 Context에 추가
-        if (updatedPost_id) {
-            setPost({ ...post, post_id: updatedPost_id}); // 서버에서 받은 post_id로 갱신
-        }
+        updatedPost_id = await community_context.post(post); // 새로운 게시글을 Context에 추가
+        await community_context.get_list(previousPost.type);
         navigation.navigate('MainTabs', {
             screen: '커뮤니티',
-            params: {
-                post_id: post.post_id, 
-                type: post.type,
-                updatedPost: post,
-            },
+            params: { type: previousPost.type }
             });
         };
     }
@@ -96,10 +86,10 @@ export default function ComuWriteScreen() {
                 <Feather name="x" size={24} color="black" />
             </BackButton>
             <ScreenTitleWrapper>
-                <ScreenTitle>{paramContent.post_id ? '글 수정하기' : '글 쓰기'}</ScreenTitle>
+                <ScreenTitle>{previousPost.post_id ? '글 수정하기' : '글 쓰기'}</ScreenTitle>
             </ScreenTitleWrapper>
             <RegisterButton onPress={handleRegister}>
-                <RegisterButtonText>{paramContent.post_id ? '수정하기' : '등록하기'}</RegisterButtonText>
+                <RegisterButtonText>{previousPost.post_id ? '수정하기' : '등록하기'}</RegisterButtonText>
             </RegisterButton>
         </ComuWriteHeader>
         <ComuWriteBox>

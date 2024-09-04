@@ -8,16 +8,14 @@ import StartPage from "../screens/StartPage"; // StartPage 파일 경로
 import Login from "../screens/Login"; // Login 파일 경로
 import TeamSelect from "../screens/TeamSelect";
 import ProfileImage from "../screens/ProfileImage";
-import CommunityScreen from "../screens/CommunityScreen";
-import ComuWriteScreen from "../screens/ComuWriteScreen";
-import ComuPostedScreen from "../screens/ComuPostedScreen";
-import LeagueComuScreen from "../screens/LeagueComuScreen";
-import MyTeamComuScreen from "../screens/MyTeamComuScreen";
+import CommunityScreen from "../screens/community/CommunityScreen";
+import ComuWriteScreen from "../screens/community/ComuWriteScreen";
+import ComuPostedScreen from "../screens/community/ComuPostedScreen";
 import NotificationScreen from "../screens/NotificationScreen";
 import CheckBlog from "../screens/CheckBlogScreen";
 import CheckMVP from "../screens/CheckMvpScreen";
 import PostScreen from "../screens/PostScreen";
-import Comment from "../screens/CommentScreen";
+import Comment from "../screens/comment/CommentScreen";
 import Modify from "../screens/ModifyScreen";
 
 const Stack = createStackNavigator();
@@ -58,8 +56,6 @@ const StackNavigator = () => {
         <Stack.Screen name="CommunityScreen" component={CommunityScreen} />
         <Stack.Screen name="ComuWriteScreen" component={ComuWriteScreen} />
         <Stack.Screen name="ComuPostedScreen" component={ComuPostedScreen} />
-        <Stack.Screen name="LeagueComuScreen" component={LeagueComuScreen} />
-        <Stack.Screen name="MyTeamComuScreen" component={MyTeamComuScreen} />
         <Stack.Screen
           name="NotificationScreen"
           component={NotificationScreen}

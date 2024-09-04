@@ -1,72 +1,51 @@
-// CommunityScreen.js
-import React, {useState, useEffect,  useContext} from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import styled from 'styled-components/native';
 import { Feather, FontAwesome6 } from '@expo/vector-icons';
-import LeagueComuScreen from './LeagueComuScreen';
-import MyTeamComuScreen from './MyTeamComuScreen';
-import { PostsContext } from '../Context API/PostsContext';
-import Loading from '../components/Loading';
-import Error from '../components/Error';
+import ComuPostListScreen from './ComuPostListScreen';
+import { Context } from '../../context/context';
+import Loading from '../../components/Loading';
+import Error from '../../components/Error';
 
-export default function CommunityScreen({ navigation }) {
-  const {posts, setPosts, fetchPosts, loading, categoryPosts, error} = useContext(PostsContext);
-  const [selectedCategory, setSelectedCategory] = useState('league');
+export default function CommunityScreen() {
+  const { community_context, postData, postList } = useContext(Context);
+  const [type, setType] = useState('league');
   const route = useRoute();
+  const navigation = useNavigation();
 
   useEffect(() => {
-    fetchPosts(selectedCategory); // 선택된 카테고리에 따라 포스트 가져오기
-    const unsubscribe = navigation.addListener('focus', () => {
-      const updatedPost = route.params?.updatedPost;
-      const deletedPostId = route.params?.deletedPostId;
-
-      if (updatedPost) {
-      setPosts(prevPosts => {
-        const updatedPosts = prevPosts.map(post => 
-          post.post_id === updatedPost.post_id ? updatedPost : post
-        );
-        console.log('Updated post:', updatedPost);
-        return updatedPosts;
-      });
+    const render = async () => {
+      await community_context.get_list(type);
     }
+    render()
+  }, [ type ]);
 
-    if (deletedPostId) {
-      setPosts(prevPosts => {
-        const filteredPosts = prevPosts.filter(post => post.post_id !== deletedPostId);
-        console.log(`Deleted post with ID ${deletedPostId}. Remaining posts:`, filteredPosts);
-        return filteredPosts;
-      });
+  const handlePressType = async (type) => {
+    try {
+      setType(type);
+      await community_context.get_list(type);
+    } catch (error) {
+      console.log(error);
     }
-    });
-  
-    return unsubscribe;
-  }, [selectedCategory, navigation, route.params?.updatedPost, route.params?.deletedPostId]);
-
-  if (loading) {
-    return <Loading />;
-  }
-
-  if (error) {
-    return <Error />;
-  }
+  };
 
   return (
     <Wrapper>
       <HeaderWrapper>
         <CtgyWrapper>
           <CtgyButton 
-          onPress={() => setSelectedCategory('league')} 
-          isActive={selectedCategory === 'league'}
+            onPress={() => handlePressType('league')} 
+            isActive={type === 'league'}
           >
             <CtgyText>리그 커뮤니티</CtgyText>
-            <TextWrapper1 isActive={selectedCategory === 'league'} />
+            <TextWrapper1 isActive={type === 'league'} />
           </CtgyButton>
           <CtgyButton 
-          onPress={() => {setSelectedCategory('team')}}
-          isActive={selectedCategory === 'team'}
+            onPress={() => handlePressType('team')} 
+            isActive={type === 'team'}
           >
             <CtgyText>마이팀 커뮤니티</CtgyText>
-            <TextWrapper2 isActive={selectedCategory === 'team'} />
+            <TextWrapper2 isActive={type === 'team'} />
           </CtgyButton>
         </CtgyWrapper>
         <InputBoxWrapper>
@@ -74,26 +53,24 @@ export default function CommunityScreen({ navigation }) {
             <Feather name="search" size={20} color="#C51E3A" />
           </SearchButton>
           <InputBox 
-          placeholder='글을 입력하여주세요' 
-          placeholderTextColor={'#C51E3A'}
-          multiline
+            placeholder='글을 입력하여주세요' 
+            placeholderTextColor={'#C51E3A'}
+            multiline
           />
         </InputBoxWrapper>
       </HeaderWrapper>
-      {selectedCategory === 'league' ? (
-        <LeagueComuScreen posts={categoryPosts.league.data} />
-      ) : (
-        <MyTeamComuScreen posts={categoryPosts.team.data} />
-      )}
+
+        <ComuPostListScreen posts={postList.data} type = {type}/>
+      
       <ButtonWrapper>
-        <WriteButton onPress={() => navigation.navigate('ComuWriteScreen', {type: selectedCategory})}>
+        <WriteButton onPress={() => navigation.navigate('ComuWriteScreen', { isPatch: false, type: type })}>
           <FontAwesome6 name="pen" size={20} color="#fff" />
           <ButtonText>글 쓰기</ButtonText>
         </WriteButton>
       </ButtonWrapper>
     </Wrapper>
   );
-};
+}
 
 const Wrapper = styled.View`
   flex: 1;
