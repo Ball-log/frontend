@@ -32,10 +32,10 @@ export default function ComuPostedScreen() {
     setPostData()
   }, [])
   useEffect(() => {
-    console.log("!!!!", route.params)
     const setPostData = async () => {
       await community_context.get(post_id);
       setSelectedType(type)
+      console.log("postData: ", postData);
     };
     setPostData()
   }, [route])

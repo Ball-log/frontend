@@ -17,6 +17,7 @@ const ContextProvider = ({children}) => {
             try {
                 const response = await community_api.get(post_id);
                 setPostData(response.result);
+                console.log("postData: ", response.result);
             } catch (error) {
                 community_error.get(error);
             }
@@ -67,7 +68,7 @@ const ContextProvider = ({children}) => {
         },
         patch: async (req) => {
             try {
-                await reply_api.patch(req);
+                await comment_api.patch(req);
             } catch (error) {
                 //comment_error.patch(error);
             }

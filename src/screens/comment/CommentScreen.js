@@ -17,9 +17,9 @@ const Comment = () => {
   const navigation = useNavigation();
   const route = useRoute();
   const [ type, setType ] = useState(route.params.type)
-  const [newComment, setNewComment] = useState("");
-  const [newReply, setNewReply] = useState("");
-  const [selectedCommentId, setSelectedCommentId] = useState(null);
+  const [newText, setNewText] = useState("");
+  const [selectedTextId, setSelectedTextId] = useState(null);
+  const [mode, setMode] = useState("postComment")
   const [keyboardHeight, setKeyboardHeight] = useState(0);
 
   useEffect(() => {
@@ -35,30 +35,34 @@ const Comment = () => {
         setKeyboardHeight(0);
       }
     );
-
     return () => {
       keyboardDidHideListener.remove();
       keyboardDidShowListener.remove();
     };
   }, []);
 
+  const getRepliesForComment = (commentId) => {
+    return postData.reply_list.filter(
+      (reply) => reply.commented_id === commentId
+    );
+  };
 
   const handleDismissKeyboard = () => {
     Keyboard.dismiss();
-    setSelectedCommentId(null); // 터치 시 답글 입력 모드를 해제
+    console.log("postComment")
+    setMode("postComment")
   };
 
-  const handleSubmitComment = async () => {
-    if (!newComment.trim()) return;
-
+  const handlePostComment = async () => {
+    if (!newText.trim()) return;
     try {
       const req = {
-      "body": newComment,
+      "body": newText,
       "post_id": postData.post_id,
       "post_user_id": postData.user_id,
       "post_type": postData.post_type
       }
-      setNewComment("")
+      setNewText("")
       await comment_context.post(req);
       await community_context.get(postData.post_id)
       await community_context.get_list(type)
@@ -67,30 +71,76 @@ const Comment = () => {
       console.error("Error submitting comment:", error);
     }
   };
-
-  const getRepliesForComment = (commentId) => {
-    return postData.reply_list.filter(
-      (reply) => reply.commented_id === commentId
-    );
+  const handlePatchComment = async () => {
+    if (!newText.trim()) return;
+    const req = {
+      "id": selectedTextId,
+      "body": newText,
+    }
+    console.log(req)
+    setNewText("")
+    setMode("postComment")
+    await comment_context.patch(req);
+    await community_context.get(postData.post_id)
   };
-
-  const handleSubmitReply = async () => {
-    if (!newReply.trim()) return;
-
+  const handleDeleteComment = async (post_id) => {
     try {
       const req = {
-        "body": newReply,
+      "id": post_id
+      }
+      console.log(req)
+      await comment_context.delete(req);
+      await community_context.get(postData.post_id)
+      await community_context.get_list(type)
+      setNewText("")
+      setMode("postComment")
+    } catch (error) {
+      console.error("Error deletting comment:", error);
+    }
+  };
+
+  const handlePostReply = async () => {
+    if (!newText.trim()) return;
+    try {
+      const req = {
+        "body": newText,
         "post_id": postData.post_id,
         "post_user_id": postData.user_id,
-        "comment_id": selectedCommentId,
+        "comment_id": selectedTextId,
         "post_type": postData.post_type
-        }
-        setNewReply("")
+      }
+      setNewText("")
+      setMode("postComment")
       await reply_context.post(req);
       await community_context.get(postData.post_id)
       await community_context.get_list(type)
     } catch (error) {
       console.error("Error submitting reply:", error);
+    }
+  };
+  const handlePatchReply = async () => {
+    if (!newText.trim()) return;
+    const req = {
+      "id": selectedTextId,
+      "body": newText,
+    }
+    setNewText("")
+    setMode("postComment")
+    await reply_context.patch(req);
+    await community_context.get(postData.post_id)
+  };
+  const handleDeleteReply = async (post_id) => {
+    try {
+      const req = {
+      "id": post_id
+      }
+      await reply_context.delete(req);
+      await community_context.get(postData.post_id)
+      await community_context.get_list(type)
+      setNewText("")
+      setMode("postComment")
+    } catch (error) {
+      console.error("Error deletting reply:", error);
     }
   };
 
@@ -142,13 +192,14 @@ const Comment = () => {
                               {comment.comment_body}
                             </CommentDetail>
                             <DetailFooter>
-                            
                               <DateTime>{`${comment.comment_date.split("T")[0]} | ${comment.comment_date.split("T")[1].split(".")[0]}`}</DateTime>
                               <ReplyButton
                                 onPress={() =>
                                   {
-                                    setSelectedCommentId(comment.comment_id)
-                                    setNewReply("")
+                                    setSelectedTextId(comment.comment_id)
+                                    setMode("postReply")
+                                    console.log("postReply", comment.comment_id)
+                                    setNewText("")
                                   }
                                 }
                               >
@@ -159,8 +210,10 @@ const Comment = () => {
                                   <ReplyButton
                                     onPress={() =>
                                       {
-                                        setSelectedCommentId(comment.comment_id)
-                                        setNewReply("")
+                                        setSelectedTextId(comment.comment_id)
+                                        setNewText(comment.comment_body)
+                                        setMode("patchComment")
+                                        console.log("patchComment")
                                       }
                                     }
                                   >
@@ -169,8 +222,8 @@ const Comment = () => {
                                   <ReplyButton
                                     onPress={() =>
                                       {
-                                        setSelectedCommentId(comment.comment_id)
-                                        setNewReply("")
+                                        setSelectedTextId(comment.comment_id);
+                                        handleDeleteComment(comment.comment_id);
                                       }
                                     }
                                   >
@@ -197,7 +250,7 @@ const Comment = () => {
                                           source={{uri: postData.user_icon_url}}
                                         />
                                         <UserName>
-                                          {comment.comment_user_name}
+                                          {reply.reply_user_name}
                                         </UserName>
                                       </UserNameWrapper>
                                     </UserInfo>
@@ -212,8 +265,10 @@ const Comment = () => {
                                             <ReplyButton
                                               onPress={() =>
                                                 {
-                                                  setSelectedCommentId(comment.comment_id)
-                                                  setNewReply("")
+                                                  setSelectedTextId(reply.reply_id);
+                                                  setNewText(reply.reply_body);
+                                                  setMode("patchReply");
+                                                  console.log("patchReply");
                                                 }
                                               }
                                             >
@@ -222,8 +277,8 @@ const Comment = () => {
                                             <ReplyButton
                                               onPress={() =>
                                                 {
-                                                  setSelectedCommentId(comment.comment_id)
-                                                  setNewReply("")
+                                                  setSelectedTextId(reply.reply_id);
+                                                  handleDeleteReply(reply.reply_id);
                                                 }
                                               }
                                             >
@@ -248,27 +303,59 @@ const Comment = () => {
             <CommentsFooter>
               <InputBoxWrapper>
                 <UserImage source={{uri: postData.user_icon_url}} />
-                {selectedCommentId ? (
-                  <CommentInputBox
-                    placeholder="답글을 입력해주세요"
-                    placeholderTextColor={"#B5B5B5"}
-                    multiline
-                    value={newReply}
-                    onChangeText={(text) => setNewReply(text)}
-                  />
-                ) : (
+                {mode === "postComment" && (
                   <CommentInputBox
                     placeholder="댓글을 입력해주세요"
                     placeholderTextColor={"#B5B5B5"}
                     multiline
-                    value={newComment}
-                    onChangeText={(text) => setNewComment(text)}
+                    value={newText}
+                    onChangeText={(text) => setNewText(text)}
+                  />
+                )}
+
+                {mode === "patchComment" && (
+                  <CommentInputBox
+                    placeholder="댓글을 수정해주세요"
+                    placeholderTextColor={"#B5B5B5"}
+                    multiline
+                    value={newText}
+                    onChangeText={(text) => setNewText(text)}
+                  />
+                )}
+
+                {mode === "postReply" && (
+                  <CommentInputBox
+                    placeholder="답글을 입력해주세요"
+                    placeholderTextColor={"#B5B5B5"}
+                    multiline
+                    value={newText}
+                    onChangeText={(text) => setNewText(text)}
+                  />
+                )}
+
+                {mode === "patchReply" && (
+                  <CommentInputBox
+                    placeholder="답글을 수정해주세요"
+                    placeholderTextColor={"#B5B5B5"}
+                    multiline
+                    value={newText}
+                    onChangeText={(text) => setNewText(text)}
                   />
                 )}
                 <UploadButton
-                  onPress={
-                    selectedCommentId ? handleSubmitReply : handleSubmitComment
-                  }
+                  onPress={() =>{
+                    //selectedTextId ? handlePostReply : handlePostComment
+                    if (mode ==="postComment") {
+                      handlePostComment()
+                    } else if (mode ==="patchComment") {
+                      handlePatchComment()
+                    } else if (mode ==="postReply"){
+                      console.log("reply")
+                      handlePostReply()
+                    } else if (mode==="patchReply") {
+                      handlePatchReply()
+                    }
+                  }} 
                 >
                   <Feather name="send" size={24} color="#C51E3A" />
                 </UploadButton>

@@ -28,6 +28,7 @@ const Login = () => {
   const fetchData = async (url) => {
     try {
       const response = await axios.get(url);
+      console.log(response)
       const Authorization = response.headers.authorization;
       const refreshtoken = response.headers.refreshtoken;
       const user_id = response.headers.user_id;
@@ -37,13 +38,14 @@ const Login = () => {
       getSocket(user_id)
       onPressHandler()
     } catch (error) {
-      console.error('Error fetching data:', error);
+      console.error('Error fetching data!!!:', error);
     }
   };  
 
   const handleNavigationStateChange = (navState) => {
     const url = navState.url;
     if (url !== redirectUrl && url.includes('redirect') && !url.includes('oauth')) {
+      
       setRedirectUrl(url);
       const code = url.split('?')[1]
       const token_url = modalUrl + '/token?' + code
