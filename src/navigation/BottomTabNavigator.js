@@ -8,12 +8,18 @@ import MyPageStackNavigator from "./MyPageStackNavigator";
 import { Ionicons } from "@expo/vector-icons";
 import { colors } from "../global";
 import { Dimensions, Platform } from "react-native";
+import { useRoute } from '@react-navigation/native';
 
 const { width, height } = Dimensions.get("window");
 
 const Tab = createBottomTabNavigator();
 
 const BottomTabNavigator = () => {
+  const route = useRoute(); // 이전 화면에서 전달된 params에 접근
+  const team = route.params?.team;
+  const profileImgUrl = route.params?.user_icon;
+  console.log('profileImgUrl: ', profileImgUrl);
+
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
@@ -50,7 +56,7 @@ const BottomTabNavigator = () => {
       <Tab.Screen name="글쓰기" component={PostScreen} />
       <Tab.Screen name="홈" component={HomeScreen} />
       <Tab.Screen name="커뮤니티" component={CommunityScreen} />
-      <Tab.Screen name="마이페이지" component={MyPageStackNavigator} />
+      <Tab.Screen name="마이페이지" component={MyPageStackNavigator} initialParams={{team, profileImgUrl}} />
     </Tab.Navigator>
   );
 };

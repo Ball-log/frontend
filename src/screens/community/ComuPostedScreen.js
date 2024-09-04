@@ -1,6 +1,6 @@
 //ComuPostedScreen.js
 import React, {useState, useContext, useMemo, useRef, useEffect} from 'react';
-import { Keyboard } from 'react-native';
+import { Keyboard, TouchableWithoutFeedback } from 'react-native';
 import styled from 'styled-components/native';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import { Ionicons, AntDesign, MaterialCommunityIcons, Feather } from '@expo/vector-icons';
@@ -13,7 +13,6 @@ export default function ComuPostedScreen() {
   const { post_like_context, community_context, postData } = useContext(Context);
   const [selectedType, setSelectedType] = useState(type);
   const [showModal, setShowModal] = useState(false);
-
   const {post_id, type} = route.params;
   useEffect(() => {
     const setPostData = async () => {
@@ -92,7 +91,7 @@ export default function ComuPostedScreen() {
   }
 
   return (
-    <>
+    <TouchableWithoutFeedback>
     <Wrapper>
 
       <ComuPostedHeader>
@@ -178,7 +177,7 @@ export default function ComuPostedScreen() {
       
     </Wrapper>
     
-    </>
+    </TouchableWithoutFeedback>
   )
 }
 

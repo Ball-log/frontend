@@ -45,14 +45,11 @@ const CommunityProvider = ({ children }) => {
         get_list: async (type, cursor = null, page = null) => {
             try {
                 const response = await community_api.get_list(type, cursor, page);
-
                 if (response.result.totalCount  === 0) {
                     setPostList([{data: []}])
                 } else {
                     setPostList(response.result);
                 }
-                console.log(JSON.stringify(response.result, null, 2));
-                
             } catch (error) {
                 community_error.get_list(error);
             }

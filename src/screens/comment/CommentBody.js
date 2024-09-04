@@ -154,7 +154,7 @@ const CommentBody = () => {
                           <UserInfo>
                             <UserNameWrapper>
                               <UserImage
-                                source={{uri: postData.user_icon_url}}
+                                source={{uri: comment.comment_user_icon_url}}
                               />
                               <UserName>
                                 {comment.comment_user_name}
@@ -219,7 +219,8 @@ const CommentBody = () => {
                                           source={require("../../assets/ReplyIcon.png")}
                                         />
                                         <UserImage
-                                          source={{uri: postData.user_icon_url}}
+                                          
+                                          source={{uri: reply.reply_user_icon_url}}
                                         />
                                         <UserName>
                                           {reply.reply_user_name}
@@ -273,7 +274,7 @@ const CommentBody = () => {
             </ScrollView>
             <CommentsFooter>
               <InputBoxWrapper>
-                <UserImage source={{uri: postData.user_icon_url}} />
+                {/*<UserImage source={{uri: postData.user_icon_url}} />*/}
                 <CommentInputBox
                   placeholder={
                     mode === 'postComment' ? '댓글을 입력해주세요' :

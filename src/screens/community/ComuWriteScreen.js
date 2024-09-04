@@ -11,7 +11,6 @@ export default function ComuWriteScreen() {
   const route = useRoute();
   const { community_context, postData, postList } = useContext(Context);
   const previousPost = route.params;
-  console.log(previousPost)
   const [post, setPost] = useState(() => ({
     post_id: '',
     title: '',
@@ -43,7 +42,6 @@ export default function ComuWriteScreen() {
     }
 
     let updatedPost_id = post.post_id;
-    console.log("write", previousPost)
     if (previousPost.isPatch) {
         await community_context.patch(postData.post_id, post);
         navigation.navigate('ComuPostedScreen', {

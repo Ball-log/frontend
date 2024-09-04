@@ -57,7 +57,7 @@ const styles = StyleSheet.create({
   },
   logo: {
     fontSize: width * 0.07, 
-    fontWeight: '800',
+    fontFamily: 'InterExtraBold',
     color: '#b91d47',
   },
   notificationIcon: {

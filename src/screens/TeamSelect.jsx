@@ -8,16 +8,24 @@ import {
   TouchableOpacity,
   ScrollView,
   Image,
+  Platform,
+  StatusBar,
 } from "react-native";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, useRoute } from "@react-navigation/native";
 import axios from "axios";
 import { API_TOKEN } from "@env";
 import { store } from "../utils/secureStore";
+import { teamImages } from "../utils/team_images";
 
 const TeamSelect = () => {
+  const navigation = useNavigation();
+  const route = useRoute();
   const [selectedOption, setSelectedOption] = useState(null);
   const [teamData, setTeamData] = useState([]);
   const [token, setToken] = useState(null);
+
+  const profileImgUrl = route.params?.user_icon || route.params?.profileImgUrl;
+  console.log('profileImgUrl: ', profileImgUrl);
 
   useEffect(() => {
     async function getToken() {
@@ -29,7 +37,6 @@ const TeamSelect = () => {
         console.error('Error get token:', error);
       }
     }
-
     // 비동기 함수 호출
     getToken();
 
@@ -37,6 +44,7 @@ const TeamSelect = () => {
       console.log('Cleanup if necessary');
     };
   }, []);
+
   useEffect(() => {
     // 데이터를 가져오는 함수
     const fetchData = async () => {
@@ -75,8 +83,6 @@ const TeamSelect = () => {
     fetchData(); // 컴포넌트 마운트 시 데이터 가져오기
   }, []);
 
-  const navigation = useNavigation(); // Initialize navigation
-
   const onPressHandler = async () => {
     if (selectedOption) {
       try {
@@ -96,7 +102,11 @@ const TeamSelect = () => {
         );
 
         console.log("PATCH response:", response.data);
-        navigation.navigate("MainTabs", { team: selectedOption }); // 성공 시 다음 화면으로 이동
+        
+        navigation.navigate("MainTabs", { 
+          team: selectedOption,
+          user_icon: profileImgUrl
+        }); // 성공 시 다음 화면으로 이동
       } catch (error) {
         if (error.response) {
           console.error("Error sending data:", error.response.data);
@@ -120,7 +130,7 @@ const TeamSelect = () => {
       </SafeAreaView>
       <View style={styles.contentContainer}>
         <View style={styles.TeamText}>
-          <Text style={styles.MyTeam}>My Team </Text>
+          <Text style={styles.MyTeam}>My Team</Text>
           <Text style={styles.SelectText}>을 선택하세요</Text>
         </View>
         <ScrollView contentContainerStyle={styles.optionsContainer}>
@@ -139,7 +149,7 @@ const TeamSelect = () => {
               >
                 <Text style={styles.optionButtonText}>{team.team_name}</Text>
                 <Image
-                  source={{ uri: team.team_icon_flag }}
+                  source={teamImages[team.team_icon_flag]}
                   style={styles.optionImage}
                 />
               </TouchableOpacity>
@@ -162,7 +172,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#FFFFFF",
   },
   safeArea: {
-    backgroundColor: "#f8f8f8",
+    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
   },
   header: {
     flexDirection: "row",
@@ -170,11 +180,10 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     height: 40,
     paddingHorizontal: 10,
-    backgroundColor: "#f8f8f8",
   },
   logo: {
     fontSize: 30,
-    fontWeight: "800",
+    fontFamily: 'InterExtraBold',
     color: "#b91d47",
     marginLeft: 10,
   },
@@ -187,15 +196,16 @@ const styles = StyleSheet.create({
   TeamText: {
     flexDirection: "row",
     marginVertical: 13,
+    fontFamily: 'InterBold',
   },
 
   MyTeam: {
     color: colors.primary,
-    fontWeight: "700",
+    fontFamily: 'InterBold',
     fontSize: 27,
   },
   SelectText: {
-    fontWeight: "700",
+    fontFamily: 'InterBold',
     fontSize: 26,
   },
   optionsContainer: {

@@ -10,9 +10,7 @@ export const reply_api = {
         return result.data;
     },
     delete: async (req) =>{
-        console.log(req)
         const result = await api.delete("/api-utils/reply", { data: req });
-        console.log(result.data)
         return result.data;
     }
 }

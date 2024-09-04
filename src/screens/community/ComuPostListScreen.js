@@ -51,7 +51,7 @@ export default function ComuPostList({posts, type}) {
                       </ChatIcon>
                       <ChatCount>{totalCommentCount}</ChatCount>
                     </IconWrapper>
-                    <DateTime>{`| ${post.created_at.split("T")[0]} ${post.created_at.split("T")[1].split(".")[0]}} | ${post.user_name}`}</DateTime>
+                    <DateTime>{`| ${post.created_at.split("T")[0]} ${post.created_at.split("T")[1].split(".")[0]} | ${post.user_name}`}</DateTime>
                   </ComuFooter>
                 </DetailBox>
                 {post.img_urls && post.img_urls.length > 0 && (

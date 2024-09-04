@@ -4,27 +4,13 @@ import { useNavigation } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
 import { getPresignedUrl, uploadFileToS3 } from "../components/S3";
+import { teamImages } from "../utils/team_images";
 
-const useCommonNavigation = () => {
+const SettingScreen = ({route}) => {
   const navigation = useNavigation();
-
-  const navigateTo = (screenName) => {
-    navigation.navigate(screenName);
-  };
-
-  const navigateBack = () => {
-    navigation.goBack();
-  };
-
-  return {
-    navigateTo,
-    navigateBack,
-  };
-};
-
-const SettingScreen = () => {
-  const { navigateTo, navigateBack } = useCommonNavigation();
   const [image, setImage] = useState(null);
+  const { team, profileImgUrl } = route.params || {};
+  const data = route.params?.data;
 
   const pickImage = async () => {
     const permissionResult =
@@ -61,6 +47,10 @@ const SettingScreen = () => {
         await uploadFileToS3(presignedUrl, blob);
 
         alert("이미지 업로드 성공");
+
+        navigation.navigate("MyPageScreen", {
+          data: { ...data, user_background_img: presignedUrl.split("?")[0] },
+        });
       } catch (error) {
         console.error("이미지 업로드 중 오류 발생:", error);
         alert("이미지 업로드 실패");
@@ -68,10 +58,13 @@ const SettingScreen = () => {
     }
   };
 
+  console.log('내 팀', team);
+  console.log('data', data);
+
   return (
     <View style={styles.container}>
       <View style={styles.bar}>
-        <TouchableOpacity style={styles.backButton} onPress={navigateBack}>
+        <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
           <Ionicons name="chevron-back" size={24} color="black" />
         </TouchableOpacity>
         <View style={styles.titleContainer}>
@@ -80,15 +73,15 @@ const SettingScreen = () => {
       </View>
       <TouchableOpacity
         style={styles.button}
-        onPress={() => navigateTo("LogoutScreen")}
+        onPress={() => navigation.navigate("LogoutScreen", {data, profileImgUrl})}
       >
         <View style={styles.texts}>
-          <Text style={styles.MainText}>홍길동</Text>
+          <Text style={styles.MainText}>{data?.user_name || "이름 없음"}</Text>
           <Text style={styles.SubText}>Google 계정</Text>
         </View>
         <Image
           style={styles.ProfileImage}
-          source={require("../assets/Profile.png")}
+          source={{uri: profileImgUrl || data.user_icon_url}}
         />
       </TouchableOpacity>
       <TouchableOpacity style={styles.button} onPress={pickImage}>
@@ -104,15 +97,15 @@ const SettingScreen = () => {
       </TouchableOpacity>
       <TouchableOpacity
         style={styles.button}
-        onPress={() => navigateTo("TeamSelect")}
+        onPress={() => navigation.navigate("TeamSelect", {profileImgUrl})}
       >
         <View style={styles.texts}>
           <Text style={styles.MainText}>마이팀 변경</Text>
-          <Text style={styles.SubText}>두산 베어스</Text>
+          <Text style={styles.SubText}>{team?.team_name || '선택된 팀 없음'}</Text>
         </View>
         <Image
           style={styles.TeamImage}
-          source={require("../assets/Teams/Doosan.png")}
+          source={teamImages[team.team_icon_flag]}
         />
       </TouchableOpacity>
     </View>
@@ -154,6 +147,7 @@ const styles = StyleSheet.create({
     height: 97,
     backgroundColor: "#D9D9D9",
     marginVertical: 8,
+    borderRadius: 26,
   },
   texts: {
     flexDirection: "column",
@@ -170,6 +164,7 @@ const styles = StyleSheet.create({
   ProfileImage: {
     width: 57,
     height: 57,
+    borderRadius: 100,
   },
   BackImage: {
     width: 84,

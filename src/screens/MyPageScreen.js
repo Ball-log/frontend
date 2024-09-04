@@ -9,8 +9,7 @@ import {
   TouchableOpacity,
 } from "react-native";
 import { Calendar } from "react-native-calendars";
-import { useNavigation } from "@react-navigation/native";
-import { useRoute } from "@react-navigation/native";
+import { useNavigation, useRoute } from "@react-navigation/native";
 import axios from "axios";
 import { myPage_api } from "../api/myPage/myPage.api";
 
@@ -18,6 +17,7 @@ const MyPageScreen = () => {
   const navigation = useNavigation();
   const route = useRoute();
   const selectedTeam = route.params?.team;
+  const profileImgUrl = route.params?.profileImgUrl;
   const backgroundImage = data?.opposition_icon_flag
     ? { uri: data.user_background_img }
     : require("../assets/basic.png"); // 기본 이미지
@@ -55,8 +55,10 @@ const MyPageScreen = () => {
     return `${month}/${day}일 경기`;
   };
 
+  console.log('profileImgUrl', profileImgUrl);
+
   const onPressHandler = () => {
-    navigation.navigate("SettingScreen");
+    navigation.navigate("SettingScreen", {data});
   };
 
   const onDayPress = (day) => {
@@ -85,6 +87,9 @@ const MyPageScreen = () => {
 
   markedDates[today] = { selected: true, selectedColor: "#CDCDCD" };
 
+  console.log('내 팀: ', selectedTeam);
+  console.log('data', data);
+
   return (
     <View style={styles.container}>
       <ImageBackground source={backgroundImage} style={styles.BasicImage}>
@@ -105,12 +110,12 @@ const MyPageScreen = () => {
             <View style={styles.imageContainer}>
               <Image
                 style={styles.ProfileImage}
-                source={{uri:data.user_icon_url}}
+                source={{uri: profileImgUrl || data.user_icon_url}}
               />
             </View>
             <Text style={styles.buttonText}>{data.user_name}</Text>
           </TouchableOpacity>
-          <TouchableOpacity onPress={onPressHandler}>
+          <TouchableOpacity>
             <Image
               style={styles.image}
               source={require("../assets/Bookmark.png")}
@@ -213,8 +218,12 @@ const styles = StyleSheet.create({
     height: 27,
     width: 27,
     marginTop: 220,
-    marginLeft: 20,
+    marginLeft: 24,
     marginBottom: 10,
+  },
+  SettingImage: {
+    height: 27,
+    width: 27,
   },
   buttonGroup: {
     flexDirection: "row",
@@ -239,6 +248,7 @@ const styles = StyleSheet.create({
     width: 37,
     height: 37,
     resizeMode: "cover",
+    borderRadius: 100,
   },
   image: {
     resizeMode: "cover",

@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity, Image, Modal, Button } from 'react-native';
+import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity, Image, Modal, Platform, StatusBar } from 'react-native';
 import { colors } from '../global';
 import { WebView } from 'react-native-webview'; // WebView import
 import { useNavigation } from '@react-navigation/native';
 import { store } from '../utils/secureStore'
 import { getSocket } from '../utils/socket';  // 웹소켓을 관리하는 파일을 import
-import styled from 'styled-components/native';
-
+import { FontLoad } from '../utils/font_load';
 import axios from 'axios';
 
 const Login = () => {
@@ -16,6 +15,19 @@ const Login = () => {
   const [modalUrl, setModalUrl] = useState(null);
   const [redirectUrl, setRedirectUrl] = useState(null);
   const navigation = useNavigation(); // Initialize navigation
+  const [isReady, setIsReady] = useState(false);
+
+  useEffect(() => {
+    const loadFonts = async () => {
+      await FontLoad();
+      setIsReady(true);
+    };
+    loadFonts();
+  }, []);
+
+  if (!isReady) {
+    return null;
+  }
   
   const onPressHandler = () => {
     navigation.navigate('ProfileImage')
@@ -28,7 +40,6 @@ const Login = () => {
   const fetchData = async (url) => {
     try {
       const response = await axios.get(url);
-      console.log(response)
       const Authorization = response.headers.authorization;
       const refreshtoken = response.headers.refreshtoken;
       const user_id = response.headers.user_id;
@@ -51,10 +62,7 @@ const Login = () => {
       const token_url = modalUrl + '/token?' + code
       fetchData(token_url)
       setModalVisible(false)
-      
     }
-    //setModalVisible(false);
-    
   };
 
   return (
@@ -144,7 +152,9 @@ const Login = () => {
             onNavigationStateChange={handleNavigationStateChange}
             style={styles.webView}
           />
-          <Button title="닫기" onPress={() => setModalVisible(false)} />
+          <TouchableOpacity style={styles.modalButton} onPress={() => setModalVisible(false)}>
+            <Text style={styles.modalButtonText}>닫기</Text>
+          </TouchableOpacity>
         </View>
       </Modal>
     </View>
@@ -158,6 +168,7 @@ const styles = StyleSheet.create({
   },
   safeArea: {
     backgroundColor: '#f8f8f8',
+    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
   },
   header: {
     flexDirection: 'row',
@@ -165,22 +176,20 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     height: 40,
     paddingHorizontal: 10,
-    backgroundColor: '#f8f8f8',
   },
   logo: {
     fontSize: 30,
-    fontWeight: '800',
+    fontFamily: 'InterExtraBold',
     color: '#b91d47',
     marginLeft: 10,
   },
   container: {
-    
-    marginTop: 280,
+    marginTop: 200,
     marginLeft: 25,
-    height: 100,
+    height: 120,
   },
   text: {
-    fontWeight: '800',
+    fontFamily: 'InterExtraBold',
     fontSize: 28,
   },
   googlebutton: {
@@ -194,7 +203,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     borderWidth: 1,
     borderColor: colors.primary,
-    margin: 5,
+    marginBottom: 10,
   },
   naverbutton: {
     backgroundColor: '#6AC569',
@@ -207,7 +216,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     borderWidth: 1,
     borderColor: '#6AC569',
-    margin: 5,
+    marginBottom: 10,
   },
   kakaobutton: {
     backgroundColor: '#F2E147',
@@ -220,7 +229,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     borderWidth: 1,
     borderColor: '#F2E147',
-    margin: 5,
+    marginBottom: 30,
   },
   imageContainer: {
     width: 55,
@@ -231,6 +240,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',  // Adjust this color as needed
     justifyContent: 'center',
     alignItems: 'center',
+    resizeMode: 'cover',
   },
   image: {
     width: '60%',
@@ -240,7 +250,7 @@ const styles = StyleSheet.create({
   buttonText: {
     flex: 1,
     color: '#fff',
-    fontWeight: '600',
+    fontFamily: 'InterBold',
     fontSize: 17,
     textAlign: 'center',
   },
@@ -254,13 +264,27 @@ const styles = StyleSheet.create({
   modalContainer: {
     flex: 1,
     alignItems: 'center',
-    justifyContent: 'space-between'
+    justifyContent: 'space-between',
+    
   },
   webView: {
-    flex: 1,
-    width: 300,
+    width: 320,
     height: 300,
   },
+  modalButton: {
+    backgroundColor: colors.primary,
+    width: 100,
+    height: 30,
+    borderRadius: 44,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 10,
+  },
+  modalButtonText: {
+    fontFamily: 'InterBold',
+    fontSize: 15,
+    color: '#fff',
+  }
 });
 
 export default Login;

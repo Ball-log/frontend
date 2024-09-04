@@ -4,9 +4,14 @@ import { View, Text, StyleSheet, TouchableOpacity, Image, Modal, Pressable } fro
 import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 
-const LogoutScreen = () => {
+const LogoutScreen = ({route}) => {
   const [modalVisible, setModalVisible] = useState(false);
   const navigation = useNavigation();
+  const data = route.params?.data;
+  const profileImgUrl = route.params?.profileImgUrl;
+  
+  console.log('data', data);
+  console.log('profileImgUrl: ', profileImgUrl);
 
   const onPressHandler = () => {
     setModalVisible(true);
@@ -38,11 +43,11 @@ const LogoutScreen = () => {
           <Text style={styles.title}>내 계정</Text>
         </View>
       </View>
-      <Image style={styles.image} source={require('../assets/Profile.png')} />
+      <Image style={styles.image} source={{ uri: profileImgUrl || data.user_icon_url}} />
       <TouchableOpacity style={styles.uploadButton}>
         <Image style={styles.Uploadimage} source={require('../assets/FixButton.png')} />
       </TouchableOpacity>
-      <Text style={styles.username}>홍길동</Text>
+      <Text style={styles.username}>{data?.user_name || "이름 없음"}</Text>
       <Text style={styles.email}>balllog07@gmail.com</Text>
       <TouchableOpacity style={styles.button} onPress={onPressHandler}>
         <Text style={styles.buttonText}>로그아웃</Text>
@@ -109,6 +114,7 @@ const styles = StyleSheet.create({
     height: 113,
     resizeMode: 'contain',
     marginTop: 50,
+    borderRadius: 100,
   },
   uploadButton: {
     position: 'absolute',

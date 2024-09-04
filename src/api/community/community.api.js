@@ -11,7 +11,6 @@ export const community_api = {
   },
   patch: async (post_id, req) => {
     const result = await api.patch(`/community/post/${post_id}`, req);
-    console.log(result.data)
     return result.data;
   },
   delete: async (post_id) => {
