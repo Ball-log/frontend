@@ -172,7 +172,7 @@ export default function ComuPostedScreen() {
           <LayoutBox>
           
         </LayoutBox>
-        {/*<CommentBody/>*/}
+        <CommentBody/>
       </ScrollContainer>
       
     </Wrapper>
