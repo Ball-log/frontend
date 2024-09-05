@@ -25,25 +25,7 @@ const MyPageScreen = () => {
   useEffect(() => {
     // 데이터를 가져오는 함수
     const fetchData = async () => {
-      try {
-        const data = await myPage_api.get()
-        setData(data); // 데이터 설정
-        console.log("Fetched data:", data);
-      } catch (error) {
-        if (error.response) {
-          // 서버가 응답을 반환한 경우 (상태 코드가 2xx 범위 밖인 경우)
-          console.error("Error fetching data!!:", error.response.data);
-          console.error("Status code:", error.response.status);
-          console.error("Headers:", error.response.headers);
-        } else if (error.request) {
-          // 요청이 전송되었으나 응답을 받지 못한 경우
-          console.error("Error request:", error.request);
-        } else {
-          // 요청을 설정하는 동안 발생한 다른 오류
-          console.error("Error message:", error.message);
-        }
-        console.error("Error config:", error.config);
-      }
+      
     };
     fetchData(); // 컴포넌트 마운트 시 데이터 가져오기
   }, []);
