@@ -107,7 +107,7 @@ export default function ComuPostedScreen() {
         <ComuPostedBox>
           <WriterInfoBox>
             <WriterNameWrapper>
-              <UserImage source={{uri: postData.user_icon_url}} />
+              {/*<UserImage source={{uri: postData.user_icon_url}} />*/}
               <WriterName>{postData.user_name || '사용자'}</WriterName>
             </WriterNameWrapper>
             <DateTime>{`${postData.created_at.split("T")[0]} | ${postData.created_at.split("T")[1].split(".")[0]}`}</DateTime>
@@ -128,7 +128,7 @@ export default function ComuPostedScreen() {
           {postData.img_urls.map((url, index) => (
             <PostImage 
               key={`${url}url`} 
-              source={{uri: url}} 
+              //source={{uri: url}} 
               isFirst={index === 0}
               isLast={index === postData.img_urls.length - 1}
             />
