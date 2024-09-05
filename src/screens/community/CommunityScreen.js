@@ -3,12 +3,12 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import styled from 'styled-components/native';
 import { Feather, FontAwesome6 } from '@expo/vector-icons';
 import ComuPostListScreen from './ComuPostListScreen';
-import { communityContext } from '../../api/community/community.context';
+import { Context } from '../../context/context';
 import Loading from '../../components/Loading';
 import Error from '../../components/Error';
 
 export default function CommunityScreen() {
-  const { community_context, postData, postList } = useContext(communityContext);
+  const { community_context, postData, postList } = useContext(Context);
   const [type, setType] = useState('league');
   const route = useRoute();
   const navigation = useNavigation();
@@ -63,7 +63,7 @@ export default function CommunityScreen() {
         <ComuPostListScreen posts={postList.data} type = {type}/>
       
       <ButtonWrapper>
-        <WriteButton onPress={() => navigation.navigate('ComuWriteScreen', { type })}>
+        <WriteButton onPress={() => navigation.navigate('ComuWriteScreen', { isPatch: false, type: type })}>
           <FontAwesome6 name="pen" size={20} color="#fff" />
           <ButtonText>글 쓰기</ButtonText>
         </WriteButton>
