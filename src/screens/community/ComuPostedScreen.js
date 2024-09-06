@@ -110,7 +110,7 @@ export default function ComuPostedScreen() {
               <UserImage source={{uri: postData.user_icon_url}} />
               <WriterName>{postData.user_name || '사용자'}</WriterName>
             </WriterNameWrapper>
-            <DateTime>{`${postData.created_at.split("T")[0]} | ${postData.created_at.split("T")[1].split(".")[0]}`}</DateTime>
+            <DateTime>{`${postData.created_at.split(" ")[0]} | ${postData.created_at.split(" ")[1]}`}</DateTime>
           </WriterInfoBox>
           <PostContents>
             <PostTitle>

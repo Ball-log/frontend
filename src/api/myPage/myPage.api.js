@@ -1,48 +1,25 @@
-import axios from "axios"
-import { getHeader } from "../../utils/get_header"
+import { api } from '../api';
 
 export const myPage_api = {
     get: async () => {
-        const headers = await getHeader();
-        const result = await axios.get("https://api.ballog.store/myPage", {
-        headers: headers
-    });
+        const result = await api.get("https://api.ballog.store/myPage");
         return result.data.result;
     }, 
     get_post: async (date) => {
-        const headers = await getHeader();
-        const result = await axios.post(`https://api.ballog.store/myPage/post?date=${date}`, {
-        headers: headers
-        });
+        const result = await api.post(`https://api.ballog.store/myPage/post?date=${date}`);
         return result.data.result;
     },
-    patch_background_img: async (img_url) => {
-        const headers = await getHeader()
-        const result = await axios.patch("https://api.ballog.store/myPage/setting/backgroundImg", 
-            {
-                user_background_img: img_url, // 요청 본문에 포함
-            },
-            { 
-                headers: headers
-            });
+    patch_background_img: async (req) => {
+        const result = await axios.patch("https://api.ballog.store/myPage/setting/backgroundImg", req);
         return result.data.result;
     },
     get_teamSetting: async () => {
-        const headers = await getHeader();
-        const result = await axios.get("https://api.ballog.store/myPage/setting/teamSetting", {
-            headers: headers
-        });
+        const result = await axios.get("https://api.ballog.store/myPage/setting/teamSetting");
         return result.data.result;
     },
-    patch_teamSetting: async (team_id) => {
+    patch_teamSetting: async (req) => {
         const headers = await getHeader();
-        const result = await axios.patch("https://api.ballog.store/myPage/setting/teamSetting",
-            {
-                team_id: team_id,
-            },
-            {
-                headers: headers
-            });
+        const result = await axios.patch("https://api.ballog.store/myPage/setting/teamSetting", req);
         return result.data.result;
     }
 }

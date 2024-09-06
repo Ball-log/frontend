@@ -17,7 +17,7 @@ import {
   MaterialCommunityIcons,
   Feather,
 } from "@expo/vector-icons";
-import ModalComponent from "../components/Modal";
+import ModalComponent from "../../components/Modal";
 
 const MyPostScreen = () => {
   const [miniModalVisible1, setMiniModalVisible1] = useState(false);
@@ -76,13 +76,13 @@ const MyPostScreen = () => {
           </View>
           <Image
             style={styles.BlogImage}
-            source={require("../assets/basic.png")}
+            source={require("../../assets/basic.png")}
           />
           <View style={styles.TextContainer}>
             <View style={styles.LeftContainer}>
               <Image
                 style={styles.ProfileImage}
-                source={require("../assets/Profile.png")}
+                source={require("../../assets/Profile.png")}
               />
               <View style={styles.Texts}>
                 <Text style={styles.mainText}>오늘 경기 폼 미쳤다!!!</Text>
@@ -131,14 +131,14 @@ const MyPostScreen = () => {
           <View style={styles.MvpBody}>
             <Image
               style={styles.MvpImage}
-              source={require("../assets/basic.png")}
+              source={require("../../assets/basic.png")}
             />
             <View style={styles.MvpBodyRight}>
               <View style={styles.MvpBody_1}>
                 <View style={styles.TeamName}>
                   <Image
                     style={styles.TeamLogoImage}
-                    source={require("../assets/Teams/Doosan.png")}
+                    source={require("../../assets/Teams/Doosan.png")}
                   />
                   <Text style={styles.MvpName}>박건우</Text>
                 </View>

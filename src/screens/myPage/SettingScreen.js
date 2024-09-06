@@ -3,8 +3,8 @@ import { View, Text, StyleSheet, TouchableOpacity, Image } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
-import { getPresignedUrl, uploadFileToS3 } from "../components/S3";
-import { teamImages } from "../utils/team_images";
+import { getPresignedUrl, uploadFileToS3 } from "../../components/S3";
+import { teamImages } from "../../utils/team_images";
 
 const SettingScreen = ({route}) => {
   const navigation = useNavigation();
@@ -91,7 +91,7 @@ const SettingScreen = ({route}) => {
         ) : (
           <Image
             style={styles.BackImage}
-            source={require("../assets/basic.png")}
+            source={require("../../assets/basic.png")}
           />
         )}
       </TouchableOpacity>

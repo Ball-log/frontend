@@ -4,15 +4,15 @@ import { community_error } from '../api/community/community.error';
 import { comment_api } from '../api/api-utils/comment.api';
 import { reply_api } from '../api/api-utils/reply.api';
 import { post_like_api } from '../api/api-utils/post_like.api';
+import { myPage_api } from '../api/myPage/myPage.api';
 
 const Context = React.createContext();
 const ContextProvider = ({children}) => {
     const [postData, setPostData] = useState({
-        "created_at": "2024-08-11T08:30:14.000Z",
-        img_urls: ["temp"],
-        user_icon_url: ["temp"]
-      })
+        "created_at": "2024-08-11T08:30:14.000Z", img_urls: ["temp"], user_icon_url: ["temp"]})
     const [postList, setPostList] = useState([{data: {}}]);
+    const [myPage, setMyPage] = useState({user_background_img: null})
+    const [postByDate, setPostByDate] = useState()
     
     const community_context = {
         get: async (post_id) => {
@@ -113,8 +113,57 @@ const ContextProvider = ({children}) => {
             }
         }
     }
+    const myPage_context = {
+        get: async () => {
+            try {
+                const result = await myPage_api.get();
+                console.log(result);
+                setMyPage(result)
+            } catch (error) {
+                //reply_error.post(error);
+            }
+        },
+        get_post: async (date) => {
+            try {
+                const result = await myPage_api.get_post(date);
+                setPostByDate(result)
+            } catch (error) {
+                //reply_error.post(error);
+            }
+        },
+        patch_background_img: async (req) => {
+            try {
+                await myPage_api.patch_background_img(req);
+            } catch (error) {
+                //reply_error.patch(error);
+            }
+        },
+        get_teamSetting: async () => {
+            try {
+                const result = await myPage_api.get_teamSetting();
+            } catch (error) {
+                //reply_error.delete(error);
+            }
+        },
+        patch_teamSetting: async (req) => {
+            try {
+                await myPage_api.patch_teamSetting(req);
+            } catch (error) {
+                //reply_error.delete(error);
+            }
+        }
+    }
     return (
-        <Context.Provider value={{ post_like_context, community_context, reply_context, comment_context, postData, postList }}>
+        <Context.Provider value={{ 
+            post_like_context, 
+            community_context, 
+            reply_context, 
+            comment_context,
+            myPage_context, 
+            postData, 
+            postList,
+            myPage,
+            postByDate }}>
             {children}
         </Context.Provider>
     );
