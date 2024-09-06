@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import {
   View,
   Text,
@@ -10,12 +10,13 @@ import {
 } from "react-native";
 import { Calendar } from "react-native-calendars";
 import { useNavigation, useRoute } from "@react-navigation/native";
-import axios from "axios";
-import { myPage_api } from "../api/myPage/myPage.api";
+import { Context } from '../../context/context';
+import { myPage_api } from "../../api/myPage/myPage.api";
 
 const MyPageScreen = () => {
   const navigation = useNavigation();
   const route = useRoute();
+  const { myPage_context, myPage, postByDate } = useContext(Context);
   const selectedTeam = route.params?.team;
   const profileImgUrl = route.params?.profileImgUrl;
   const backgroundImage = data?.opposition_icon_flag
@@ -26,9 +27,7 @@ const MyPageScreen = () => {
     // 데이터를 가져오는 함수
     const fetchData = async () => {
       try {
-        const data = await myPage_api.get()
-        setData(data); // 데이터 설정
-        console.log("Fetched data:", data);
+        await myPage_context.get()
       } catch (error) {
         if (error.response) {
           // 서버가 응답을 반환한 경우 (상태 코드가 2xx 범위 밖인 경우)

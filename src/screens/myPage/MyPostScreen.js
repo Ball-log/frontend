@@ -17,7 +17,7 @@ import {
   MaterialCommunityIcons,
   Feather,
 } from "@expo/vector-icons";
-import ModalComponent from "../components/Modal";
+import ModalComponent from "../../components/Modal";
 
 const MyPostScreen = () => {
   const [miniModalVisible1, setMiniModalVisible1] = useState(false);

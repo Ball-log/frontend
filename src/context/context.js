@@ -9,7 +9,7 @@ import { myPage_api } from '../api/myPage/myPage.api';
 const Context = React.createContext();
 const ContextProvider = ({children}) => {
     const [postData, setPostData] = useState({
-        "created_at": "2024-08-11T08:30:14.000Z", img_urls: [], user_icon_url: []})
+        "created_at": "2024-08-11T08:30:14.000Z", img_urls: ["temp"], user_icon_url: ["temp"]})
     const [postList, setPostList] = useState([{data: {}}]);
     const [myPage, setMyPage] = useState(null)
     const [postByDate, setPostByDate] = useState()
@@ -122,7 +122,7 @@ const ContextProvider = ({children}) => {
                 //reply_error.post(error);
             }
         },
-        get_post: async (req) => {
+        get_post: async (date) => {
             try {
                 const result = await myPage_api.get_post(date);
                 setPostByDate(result)
