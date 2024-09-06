@@ -1,10 +1,10 @@
 // MyPageStackNavigator.js
 import React from "react";
 import { createStackNavigator } from "@react-navigation/stack";
-import MyPageScreen from "../screens/MyPageScreen";
-import SettingScreen from "../screens/SettingScreen";
-import LogoutScreen from "../screens/LogoutScreen";
-import MyPostScreen from "../screens/MyPostScreen";
+import MyPageScreen from "../screens/myPage/MyPageScreen";
+import SettingScreen from "../screens/myPage/SettingScreen";
+import LogoutScreen from "../screens/myPage/LogoutScreen";
+import MyPostScreen from "../screens/myPage/MyPostScreen";
 
 const Stack = createStackNavigator();
 

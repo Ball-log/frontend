@@ -112,11 +112,11 @@ const ContextProvider = ({children}) => {
                 //post_like_error.post(error);
             }
         }
-    },
+    }
     const myPage_context = {
         get: async () => {
             try {
-                const result = await myPage_api.post();
+                const result = await myPage_api.get();
                 setMyPage(result)
             } catch (error) {
                 //reply_error.post(error);

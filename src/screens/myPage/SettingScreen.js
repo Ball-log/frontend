@@ -91,7 +91,7 @@ const SettingScreen = ({route}) => {
         ) : (
           <Image
             style={styles.BackImage}
-            source={require("../assets/basic.png")}
+            source={require("../../assets/basic.png")}
           />
         )}
       </TouchableOpacity>

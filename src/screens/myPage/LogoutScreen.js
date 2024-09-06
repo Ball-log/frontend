@@ -45,7 +45,7 @@ const LogoutScreen = ({route}) => {
       </View>
       <Image style={styles.image} source={{ uri: profileImgUrl || data.user_icon_url}} />
       <TouchableOpacity style={styles.uploadButton}>
-        <Image style={styles.Uploadimage} source={require('../assets/FixButton.png')} />
+        <Image style={styles.Uploadimage} source={require('../../assets/FixButton.png')} />
       </TouchableOpacity>
       <Text style={styles.username}>{data?.user_name || "이름 없음"}</Text>
       <Text style={styles.email}>balllog07@gmail.com</Text>

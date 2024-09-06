@@ -17,11 +17,6 @@ const MyPageScreen = () => {
   const navigation = useNavigation();
   const route = useRoute();
   const { myPage_context, myPage, postByDate } = useContext(Context);
-  const selectedTeam = route.params?.team;
-  const profileImgUrl = route.params?.profileImgUrl;
-  const backgroundImage = data?.opposition_icon_flag
-    ? { uri: data.user_background_img }
-    : require("../assets/basic.png"); // 기본 이미지
 
   useEffect(() => {
     // 데이터를 가져오는 함수
@@ -29,24 +24,11 @@ const MyPageScreen = () => {
       try {
         await myPage_context.get()
       } catch (error) {
-        if (error.response) {
-          // 서버가 응답을 반환한 경우 (상태 코드가 2xx 범위 밖인 경우)
-          console.error("Error fetching data!!:", error.response.data);
-          console.error("Status code:", error.response.status);
-          console.error("Headers:", error.response.headers);
-        } else if (error.request) {
-          // 요청이 전송되었으나 응답을 받지 못한 경우
-          console.error("Error request:", error.request);
-        } else {
-          // 요청을 설정하는 동안 발생한 다른 오류
-          console.error("Error message:", error.message);
-        }
         console.error("Error config:", error.config);
       }
     };
     fetchData(); // 컴포넌트 마운트 시 데이터 가져오기
   }, []);
-  const [data, setData] = useState({user_name:"test"}); // 데이터 상태
   const formatMatchDate = (dateString) => {
     const date = new Date(dateString);
     const month = date.getMonth() + 1; // 월 (0-11이므로 +1)
@@ -54,10 +36,10 @@ const MyPageScreen = () => {
     return `${month}/${day}일 경기`;
   };
 
-  console.log('profileImgUrl', profileImgUrl);
+  console.log('myPage.user_icon_url', myPage.user_icon_url);
 
   const onPressHandler = () => {
-    navigation.navigate("SettingScreen", {data});
+    navigation.navigate("SettingScreen", {myPage});
   };
 
   const onDayPress = (day) => {
@@ -70,7 +52,7 @@ const MyPageScreen = () => {
       navigation.navigate("MyPostScreen");
     }
   };
-  const redDates = data && data.writed_date_list ? data.writed_date_list : [];
+  const redDates = myPage && myPage.writed_date_list ? myPage.writed_date_list : [];
   console.log("Fetched redDates:", redDates);
   const today = new Date().toISOString().split("T")[0];
 
@@ -85,15 +67,13 @@ const MyPageScreen = () => {
   console.log("Fetched markDates:", markedDates);
 
   markedDates[today] = { selected: true, selectedColor: "#CDCDCD" };
-
-  console.log('내 팀: ', selectedTeam);
-  console.log('data', data);
+  console.log('myPage', myPage);
 
   return (
     <View style={styles.container}>
-      <ImageBackground source={backgroundImage} style={styles.BasicImage}>
-        {selectedTeam && (
-          <Image style={styles.TeamImage} source={selectedTeam.image} />
+      <ImageBackground source={myPage.user_background_img} style={styles.BasicImage}>
+        {myPage && (
+          <Image style={styles.TeamImage} source={myPage.team_icon_round} />
         )}
         <TouchableOpacity
           style={styles.SettingImageButton}
@@ -101,7 +81,7 @@ const MyPageScreen = () => {
         >
           <Image
             style={styles.SettingImage}
-            source={require("../assets/Setting.png")}
+            source={require("../../assets/Setting.png")}
           />
         </TouchableOpacity>
         <View style={styles.buttonGroup}>
@@ -109,15 +89,15 @@ const MyPageScreen = () => {
             <View style={styles.imageContainer}>
               <Image
                 style={styles.ProfileImage}
-                source={{uri: profileImgUrl || data.user_icon_url}}
+                source={{uri: myPage.user_icon_url}}
               />
             </View>
-            <Text style={styles.buttonText}>{data.user_name}</Text>
+            <Text style={styles.buttonText}>{myPage.user_name}</Text>
           </TouchableOpacity>
           <TouchableOpacity>
             <Image
               style={styles.image}
-              source={require("../assets/Bookmark.png")}
+              source={require("../../assets/Bookmark.png")}
             />
           </TouchableOpacity>
         </View>
@@ -128,9 +108,9 @@ const MyPageScreen = () => {
             <Text style={styles.Date}>{formatMatchDate(today)}</Text>
           </View>
           <Text style={styles.Result}>
-            {data?.user_team_score === null && data?.opposition_score === null
+            {myPage?.user_team_score === null && myPage?.opposition_score === null
               ? " " // 두 값이 모두 null인 경우 빈 문자열을 출력
-              : data?.user_team_score > data?.opposition_score
+              : myPage?.user_team_score > myPage?.opposition_score
               ? "승"
               : "패"}
           </Text>
@@ -139,22 +119,22 @@ const MyPageScreen = () => {
         <View style={styles.Score}>
           <Image
             style={styles.ScoreImage}
-            source={{ uri: data?.opposition_icon_flag }}
+            source={{ uri: myPage?.opposition_icon_flag }}
           >
             {/* user_team_icon_flag로 수정 필요, 데이터 부족 */}
           </Image>
-          {data &&
-          data.user_team_score !== null &&
-          data.opposition_score !== null ? (
+          {myPage &&
+          myPage.user_team_score !== null &&
+          myPage.opposition_score !== null ? (
             <Text style={styles.ScoreNum}>
-              {data.user_team_score} : {data.opposition_score}
+              {myPage.user_team_score} : {myPage.opposition_score}
             </Text>
           ) : (
             <Text style={styles.ScoreNone}>오늘의 경기는 없습니다</Text>
           )}
           <Image
             style={styles.ScoreImage}
-            source={{ uri: data?.opposition_icon_flag }}
+            source={{ uri: myPage?.opposition_icon_flag }}
           ></Image>
         </View>
       </View>
@@ -175,14 +155,14 @@ const MyPageScreen = () => {
                   style={styles.arrow}
                   name="left"
                   size={20}
-                  source={require("../assets/LeftVector.png")}
+                  source={require("../../assets/LeftVector.png")}
                 />
               ) : (
                 <Image
                   style={styles.arrow}
                   name="right"
                   size={20}
-                  source={require("../assets/RightVector.png")}
+                  source={require("../../assets/RightVector.png")}
                 />
               )
             }
