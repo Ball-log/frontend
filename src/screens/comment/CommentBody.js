@@ -166,7 +166,7 @@ const CommentBody = () => {
                               {comment.comment_body}
                             </CommentDetail>
                             <DetailFooter>
-                              <DateTime>{`${comment.comment_date.split("T")[0]} | ${comment.comment_date.split("T")[1].split(".")[0]}`}</DateTime>
+                              <DateTime>{`${comment.comment_date.split(" ")[0]} | ${comment.comment_date.split(" ")[1]}`}</DateTime>
                               <ReplyButton
                                 onPress={() =>
                                   {
@@ -232,7 +232,7 @@ const CommentBody = () => {
                                         {reply.reply_body}
                                       </CommentDetail>
                                       <DetailFooter>
-                                        <DateTime>{`${post.created_at.split(" ")[0]} ${post.created_at.split(" ")[1]}`}</DateTime>
+                                        <DateTime>{`${reply.reply_date.split(" ")[0]} | ${reply.reply_date.split(" ")[1]}`}</DateTime>
                                         {reply.reply_isMine === true ? (
                                           <>
                                             <ReplyButton

@@ -11,7 +11,6 @@ import {
 import { Calendar } from "react-native-calendars";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { Context } from '../../context/context';
-import { myPage_api } from "../../api/myPage/myPage.api";
 
 const MyPageScreen = () => {
   const navigation = useNavigation();
