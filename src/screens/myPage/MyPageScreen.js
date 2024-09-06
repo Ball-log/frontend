@@ -107,11 +107,7 @@ const MyPageScreen = () => {
             <Text style={styles.Date}>{formatMatchDate(today)}</Text>
           </View>
           <Text style={styles.Result}>
-            {myPage?.user_team_score === null && myPage?.opposition_score === null
-              ? " " // 두 값이 모두 null인 경우 빈 문자열을 출력
-              : myPage?.user_team_score > myPage?.opposition_score
-              ? "승"
-              : "패"}
+            {myPage.match_state}
           </Text>
 
         </View>

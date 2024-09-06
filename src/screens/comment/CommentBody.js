@@ -232,7 +232,7 @@ const CommentBody = () => {
                                         {reply.reply_body}
                                       </CommentDetail>
                                       <DetailFooter>
-                                        <DateTime>{`${reply.reply_date.split("T")[0]} | ${reply.reply_date.split("T")[1].split(".")[0]}`}</DateTime>
+                                        <DateTime>{`${post.created_at.split(" ")[0]} ${post.created_at.split(" ")[1]}`}</DateTime>
                                         {reply.reply_isMine === true ? (
                                           <>
                                             <ReplyButton
