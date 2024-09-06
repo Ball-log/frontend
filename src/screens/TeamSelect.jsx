@@ -15,7 +15,6 @@ import { useNavigation, useRoute } from "@react-navigation/native";
 import axios from "axios";
 import { API_TOKEN } from "@env";
 import { store } from "../utils/secureStore";
-import { teamImages } from "../utils/team_images";
 
 const TeamSelect = () => {
   const navigation = useNavigation();
@@ -120,6 +119,7 @@ const TeamSelect = () => {
       alert("팀을 선택해주세요!");
     }
   };
+  console.log('teamData: ', teamData);
 
   return (
     <View style={styles.wrapper}>
@@ -149,7 +149,7 @@ const TeamSelect = () => {
               >
                 <Text style={styles.optionButtonText}>{team.team_name}</Text>
                 <Image
-                  source={teamImages[team.team_icon_flag]}
+                  source={{ uri: team.team_icon_flag }}
                   style={styles.optionImage}
                 />
               </TouchableOpacity>

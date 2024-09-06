@@ -4,7 +4,6 @@ import { useNavigation } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
 import { getPresignedUrl, uploadFileToS3 } from "../components/S3";
-import { teamImages } from "../utils/team_images";
 
 const SettingScreen = ({route}) => {
   const navigation = useNavigation();
@@ -105,7 +104,7 @@ const SettingScreen = ({route}) => {
         </View>
         <Image
           style={styles.TeamImage}
-          source={teamImages[team.team_icon_flag]}
+          source={{uri: team.team_icon_flag}}
         />
       </TouchableOpacity>
     </View>
