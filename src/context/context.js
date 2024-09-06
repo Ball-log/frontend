@@ -11,7 +11,7 @@ const ContextProvider = ({children}) => {
     const [postData, setPostData] = useState({
         "created_at": "2024-08-11T08:30:14.000Z", img_urls: ["temp"], user_icon_url: ["temp"]})
     const [postList, setPostList] = useState([{data: {}}]);
-    const [myPage, setMyPage] = useState(null)
+    const [myPage, setMyPage] = useState({user_background_img: null})
     const [postByDate, setPostByDate] = useState()
     
     const community_context = {
@@ -117,6 +117,7 @@ const ContextProvider = ({children}) => {
         get: async () => {
             try {
                 const result = await myPage_api.get();
+                console.log(result);
                 setMyPage(result)
             } catch (error) {
                 //reply_error.post(error);

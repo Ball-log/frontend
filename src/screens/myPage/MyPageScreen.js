@@ -36,7 +36,6 @@ const MyPageScreen = () => {
     return `${month}/${day}일 경기`;
   };
 
-  console.log('myPage.user_icon_url', myPage.user_icon_url);
 
   const onPressHandler = () => {
     navigation.navigate("SettingScreen", {myPage});
@@ -119,7 +118,7 @@ const MyPageScreen = () => {
         <View style={styles.Score}>
           <Image
             style={styles.ScoreImage}
-            source={{ uri: myPage?.opposition_icon_flag }}
+            source={{ uri: myPage?.user_team_icon_flag }}
           >
             {/* user_team_icon_flag로 수정 필요, 데이터 부족 */}
           </Image>
