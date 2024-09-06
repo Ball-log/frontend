@@ -21,7 +21,6 @@ const MyPageScreen = () => {
     // 데이터를 가져오는 함수
     const fetchData = async () => {
       try {
-        
         await myPage_context.get()
       } catch (error) {
         console.error("Error config:", error.config);
