@@ -1,22 +1,21 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect, useContext, useRef } from "react";
 import styled from "styled-components/native";
-import {
-  ScrollView,
-  Keyboard,
-  TouchableWithoutFeedback,
-} from "react-native";
+import {Keyboard} from "react-native";
 import { useRoute } from "@react-navigation/native";
 import { Feather } from "@expo/vector-icons";
 import { Context } from '../../context/context';
+import ReplyInputBox from "./ReplyInputBox";
 
 const CommentBody = () => {
   const { comment_context, community_context, reply_context, postData } = useContext(Context);
   const route = useRoute();
   const [ type, setType ] = useState(route.params.type)
   const [newText, setNewText] = useState("");
+  const [replyText, setReplyText] = useState("");
   const [selectedTextId, setSelectedTextId] = useState(null);
   const [mode, setMode] = useState("postComment")
   const [keyboardHeight, setKeyboardHeight] = useState(0);
+  const [showReplyInputBox, setShowReplyInputBox] = useState(null);
 
   useEffect(() => {
     const keyboardDidShowListener = Keyboard.addListener(
@@ -25,6 +24,7 @@ const CommentBody = () => {
         setKeyboardHeight(event.endCoordinates.height);
       }
     );
+
     const keyboardDidHideListener = Keyboard.addListener(
       "keyboardDidHide",
       () => {
@@ -41,11 +41,6 @@ const CommentBody = () => {
     return postData.reply_list.filter(
       (reply) => reply.commented_id === commentId
     );
-  };
-
-  const handleDismissKeyboard = () => {
-    Keyboard.dismiss();
-    setMode("postComment")
   };
 
   const handlePostComment = async () => {
@@ -66,6 +61,7 @@ const CommentBody = () => {
       console.error("Error submitting comment:", error);
     }
   };
+
   const handlePatchComment = async () => {
     if (!newText.trim()) return;
     const req = {
@@ -77,6 +73,7 @@ const CommentBody = () => {
     await comment_context.patch(req);
     await community_context.get(postData.post_id)
   };
+
   const handleDeleteComment = async (post_id) => {
     try {
       const req = {
@@ -93,35 +90,42 @@ const CommentBody = () => {
   };
 
   const handlePostReply = async () => {
-    if (!newText.trim()) return;
+    if (!replyText.trim()) return;
     try {
       const req = {
-        "body": newText,
+        "body": replyText,
         "post_id": postData.post_id,
         "post_user_id": postData.user_id,
         "comment_id": selectedTextId,
         "post_type": postData.post_type
       }
-      setNewText("")
-      setMode("postComment")
+      setReplyText("");
+      setShowReplyInputBox(null);
       await reply_context.post(req);
-      await community_context.get(postData.post_id)
-      await community_context.get_list(type)
+      await community_context.get(postData.post_id);
+      await community_context.get_list(type);
+
+      setReplyText("");
+      setShowReplyInputBox(null);
+      setMode("postComment");
     } catch (error) {
       console.error("Error submitting reply:", error);
     }
   };
+
   const handlePatchReply = async () => {
-    if (!newText.trim()) return;
+    if (!replyText.trim()) return;
     const req = {
       "id": selectedTextId,
-      "body": newText,
+      "body": replyText,
     }
-    setNewText("")
-    setMode("postComment")
+    setReplyText("");
+    setShowReplyInputBox(null);
+    setMode("postComment");
     await reply_context.patch(req);
-    await community_context.get(postData.post_id)
+    await community_context.get(postData.post_id);
   };
+
   const handleDeleteReply = async (post_id) => {
     try {
       const req = {
@@ -136,225 +140,180 @@ const CommentBody = () => {
       console.error("Error deletting reply:", error);
     }
   };
-    return (
-         <ContentWrapper>
-            <ScrollView
-              keyboardShouldPersistTaps="handled"
-              contentContainerStyle={{
-                flexGrow: 1,
-                paddingBottom: 80,
-              }}
-            >
-              <TouchableWithoutFeedback onPress={handleDismissKeyboard}>
-              <Container>
-                {postData && postData.comment_list
-                  ? postData.comment_list.map((comment) => (
-                      <CommentsBoxWrapper key={comment.comment_id}>
-                        <CommentsBox>
-                          <UserInfo>
-                            <UserNameWrapper>
-                              <UserImage
-                                source={{uri: comment.comment_user_icon_url}}
-                              />
-                              <UserName>
-                                {comment.comment_user_name}
-                              </UserName>
-                            </UserNameWrapper>
-                          </UserInfo>
-                          <DetailTimeWrapper>
-                            <CommentDetail>
-                              {comment.comment_body}
-                            </CommentDetail>
-                            <DetailFooter>
-                              <DateTime>{`${comment.comment_date.split(" ")[0]} | ${comment.comment_date.split(" ")[1]}`}</DateTime>
-                              <ReplyButton
+
+  return (
+    <ContentWrapper>
+      {/*댓글 입력창*/}
+      <CommentInputBox style={{ opacity: showReplyInputBox ? 0.5 : 1 }}>
+          <InputBoxWrapper>
+          {/*<UserImage source={{uri: postData.user_icon_url}} />*/}
+          <InputBox
+          placeholder={
+            mode === 'postComment' ? '댓글을 입력해주세요' :
+            mode === 'patchComment' ? '댓글을 수정해주세요' :
+            ''
+          }
+          placeholderTextColor="#B5B5B5"
+          multiline
+          value={newText}
+          onChangeText={text => setNewText(text)}
+          editable={!showReplyInputBox}
+          />
+          <UploadButton
+          onPress={() =>{
+          //selectedTextId ? handlePostReply : handlePostComment
+            if (mode ==="postComment") {
+              handlePostComment();
+            } else if (mode ==="patchComment") {
+              handlePatchComment();
+            }
+          }} 
+          disabled={showReplyInputBox}
+          >
+            <Feather name="send" size={24} color={showReplyInputBox ? "#B5B5B5" : "#C51E3A"} />
+          </UploadButton>
+        </InputBoxWrapper>
+      </CommentInputBox>
+
+      <ScrollContainer>
+          <CommentBox>
+            {postData && postData.comment_list
+            ? postData.comment_list.map((comment) => (
+            <CommentsBoxWrapper key={comment.comment_id}>
+              <CommentsBox>
+                <UserInfo>
+                  <UserNameWrapper>
+                    <UserImage 
+                    source={{uri: comment.comment_user_icon_url}}
+                    />
+                    <UserName>{comment.comment_user_name}</UserName>
+                  </UserNameWrapper>
+                </UserInfo>
+                <DetailTimeWrapper>
+                  <CommentDetail>{comment.comment_body}</CommentDetail>
+                  <DetailFooter>
+                    <DateTime>{`${comment.comment_date.split(" ")[0]} | ${comment.comment_date.split(" ")[1]}`}</DateTime>
+                    <ReplyButton 
+                    onPress={() =>
+                      {
+                        setSelectedTextId(comment.comment_id)
+                        setMode("postReply");
+                        setNewText("");
+                        setShowReplyInputBox(comment.comment_id);
+                      }
+                    }
+                    >
+                      <ReplyButtonText>답글</ReplyButtonText>
+                    </ReplyButton>
+                    {comment.comment_isMine === true ? (
+                    <>
+                      <ReplyButton 
+                      onPress={() =>
+                        {
+                          setSelectedTextId(comment.comment_id)
+                          setNewText(comment.comment_body)
+                          setMode("patchComment")
+                        }
+                      }
+                      >
+                        <ReplyButtonText>수정</ReplyButtonText>
+                      </ReplyButton>
+                      <ReplyButton
+                      onPress={() =>
+                        {
+                          setSelectedTextId(comment.comment_id);
+                          handleDeleteComment(comment.comment_id);
+                        }
+                      }
+                      >
+                        <ReplyButtonText>삭제</ReplyButtonText>
+                      </ReplyButton>
+                    </>
+                  ) : null }
+                  </DetailFooter>
+                </DetailTimeWrapper>
+              </CommentsBox>
+
+              {/*답글 입력 모달창*/}
+              {showReplyInputBox === comment.comment_id && (
+              <ReplyInputBox
+                value={replyText}
+                onChange={setReplyText}
+                onSubmit={mode === 'postReply' ? handlePostReply : handlePatchReply}
+                onCancel={() => setShowReplyInputBox(null)}
+              />
+              )}
+
+              {/* 답글 리스트 */}
+              {getRepliesForComment(comment.comment_id).length > 0 && (
+              <RepliesWrapper>
+                {getRepliesForComment(comment.comment_id).map((reply) => (
+                  <CommentsBoxWrapper key={reply.reply_id}>
+                    <CommentsBox>
+                      <UserInfo>
+                        <UserNameWrapper>
+                          <ReplyIcon source={require("../../assets/ReplyIcon.png")} />
+                          <UserImage source={{uri: reply.reply_user_icon_url}} />
+                          <UserName>{reply.reply_user_name}</UserName>
+                        </UserNameWrapper>
+                      </UserInfo>
+                      <DetailTimeWrapper>
+                        <CommentDetail>{reply.reply_body}</CommentDetail>
+                          <DetailFooter>
+                            <DateTime>{`${reply.reply_date.split(" ")[0]} | ${reply.reply_date.split(" ")[1]}`}</DateTime>
+                            {reply.reply_isMine === true ? (
+                              <>
+                                <ReplyButton
                                 onPress={() =>
                                   {
-                                    setSelectedTextId(comment.comment_id)
-                                    setMode("postReply")
-                                    setNewText("")
+                                    setSelectedTextId(reply.reply_id);
+                                    setReplyText(reply.reply_body);
+                                    setMode("patchReply");
+                                    setShowReplyInputBox(comment.comment_id);
                                   }
                                 }
-                              >
-                                <ReplyButtonText>답글</ReplyButtonText>
-                              </ReplyButton>
-                              {comment.comment_isMine === true ? (
-                                <>
-                                  <ReplyButton
-                                    onPress={() =>
-                                      {
-                                        setSelectedTextId(comment.comment_id)
-                                        setNewText(comment.comment_body)
-                                        setMode("patchComment")
-                                      }
-                                    }
-                                  >
-                                    <ReplyButtonText>수정</ReplyButtonText>
-                                  </ReplyButton>
-                                  <ReplyButton
-                                    onPress={() =>
-                                      {
-                                        setSelectedTextId(comment.comment_id);
-                                        handleDeleteComment(comment.comment_id);
-                                      }
-                                    }
-                                  >
-                                    <ReplyButtonText>삭제</ReplyButtonText>
-                                  </ReplyButton>
-                                </>
+                                >
+                                  <ReplyButtonText>수정</ReplyButtonText>
+                                </ReplyButton>
+                                <ReplyButton
+                                onPress={() =>
+                                  {
+                                    setSelectedTextId(reply.reply_id);
+                                    handleDeleteReply(reply.reply_id);
+                                  }
+                                }
+                                >
+                                  <ReplyButtonText>삭제</ReplyButtonText>
+                                </ReplyButton>
+                              </>
                               ) : null }
                             </DetailFooter>
                           </DetailTimeWrapper>
                         </CommentsBox>
-                        {getRepliesForComment(comment.comment_id).length >
-                          0 && (
-                          <RepliesWrapper>
-                            {getRepliesForComment(comment.comment_id).map(
-                              (reply) => (
-                                <CommentsBoxWrapper key={reply.reply_id}>
-                                  <CommentsBox>
-                                    <UserInfo>
-                                      <UserNameWrapper>
-                                        <ReplyIcon
-                                          source={require("../../assets/ReplyIcon.png")}
-                                        />
-                                        <UserImage
-                                          
-                                          source={{uri: reply.reply_user_icon_url}}
-                                        />
-                                        <UserName>
-                                          {reply.reply_user_name}
-                                        </UserName>
-                                      </UserNameWrapper>
-                                    </UserInfo>
-                                    <DetailTimeWrapper>
-                                      <CommentDetail>
-                                        {reply.reply_body}
-                                      </CommentDetail>
-                                      <DetailFooter>
-                                        <DateTime>{`${reply.reply_date.split(" ")[0]} | ${reply.reply_date.split(" ")[1]}`}</DateTime>
-                                        {reply.reply_isMine === true ? (
-                                          <>
-                                            <ReplyButton
-                                              onPress={() =>
-                                                {
-                                                  setSelectedTextId(reply.reply_id);
-                                                  setNewText(reply.reply_body);
-                                                  setMode("patchReply");
-                                                }
-                                              }
-                                            >
-                                              <ReplyButtonText>수정</ReplyButtonText>
-                                            </ReplyButton>
-                                            <ReplyButton
-                                              onPress={() =>
-                                                {
-                                                  setSelectedTextId(reply.reply_id);
-                                                  handleDeleteReply(reply.reply_id);
-                                                }
-                                              }
-                                            >
-                                              <ReplyButtonText>삭제</ReplyButtonText>
-                                            </ReplyButton>
-                                          </>
-                                        ) : null }
-                                      </DetailFooter>
-                                    </DetailTimeWrapper>
-                                  </CommentsBox>
-                                </CommentsBoxWrapper>
-                              )
-                            )}
-                          </RepliesWrapper>
-                        )}
                       </CommentsBoxWrapper>
-                    ))
-                  : null}
-              </Container>
-              </TouchableWithoutFeedback>
-            </ScrollView>
-            <CommentsFooter>
-              <InputBoxWrapper>
-                {/*<UserImage source={{uri: postData.user_icon_url}} />*/}
-                <CommentInputBox
-                  placeholder={
-                    mode === 'postComment' ? '댓글을 입력해주세요' :
-                    mode === 'patchComment' ? '댓글을 수정해주세요' :
-                    mode === 'postReply' ? '답글을 입력해주세요' :
-                    mode === 'patchReply' ? '답글을 수정해주세요' :
-                    ''
-                  }
-                  placeholderTextColor="#B5B5B5"
-                  multiline
-                  value={newText}
-                  onChangeText={text => setNewText(text)}
-                />
-                <UploadButton
-                  onPress={() =>{
-                    //selectedTextId ? handlePostReply : handlePostComment
-                    if (mode ==="postComment") {
-                      handlePostComment()
-                    } else if (mode ==="patchComment") {
-                      handlePatchComment()
-                    } else if (mode ==="postReply"){
-                      handlePostReply()
-                    } else if (mode==="patchReply") {
-                      handlePatchReply()
-                    }
-                  }} 
-                >
-                  <Feather name="send" size={24} color="#C51E3A" />
-                </UploadButton>
-              </InputBoxWrapper>
-            </CommentsFooter>
-          </ContentWrapper>
-    )
+                    )
+                  )}
+                </RepliesWrapper>
+              )}
+            </CommentsBoxWrapper>
+          )) : null}
+      </CommentBox>
+    </ScrollContainer>
+    
+  </ContentWrapper>
+  )
 }
-const Wrapper = styled.View`
-  flex: 1;
-  background: white;
-`;
-
-const CommentHeader = styled.View`
-  border: 1px solid #dbdbdb;
-  background-color: #fff;
-  width: 100%;
-  height: 42px;
-  justify-content: center;
-  align-items: center;
-  position: relative;
-`;
-
-const BackButton = styled.TouchableOpacity`
-  position: absolute;
-  left: 13px;
-`;
-
-const CommentWrapper = styled.View`
-  flex-direction: row;
-  justify-content: center;
-  align-items: center;
-`;
-
-const CommentIcon = styled.Image`
-  width: 24px;
-  height: 24px;
-`;
-
-const CommentText = styled.Text`
-  font-family: "Inter-Bold";
-  font-size: 17px;
-  margin: 2px 0 0 4px;
-`;
 
 const ContentWrapper = styled.View`
   flex: 1;
-  position: relative;
 `;
 
-const Container = styled.View`
-  flex: 1;
+const ScrollContainer = styled.ScrollView``;
+
+const CommentBox = styled.View`
   display: flex;
   flex-direction: column;
+  margin-bottom: 10px;
 `;
 
 const CommentsBoxWrapper = styled.View``;
@@ -448,15 +407,14 @@ const Me = styled.Text`
   padding: 0 5px;
 `;
 
-const CommentsFooter = styled.View`
-  position: absolute;
-  height: 80px;
-  bottom: 0;
+const CommentInputBox = styled.View`
   width: 100%;
   align-items: center;
   justify-content: center;
   padding: 10px;
   background-color: #fff;
+  border-top-width: 0.5px;
+  border-color: #d9d9d9;
 `;
 
 const InputBoxWrapper = styled.View`
@@ -469,7 +427,7 @@ const InputBoxWrapper = styled.View`
   padding: 0 10px;
 `;
 
-const CommentInputBox = styled.TextInput`
+const InputBox = styled.TextInput`
   flex: 1;
   font-family: "Inter-Regular";
   padding: 8px 10px;
@@ -495,14 +453,4 @@ const RepliesWrapper = styled.View`
   background-color: #f2f2f2;
 `;
 
-const ReplyInputWrapper = styled.View`
-  flex-direction: row;
-  align-items: center;
-  width: 100%;
-  height: 48px;
-  border-radius: 36px;
-  border: 1px solid #c51e3a;
-  padding: 0 10px;
-  margin-top: 10px;
-`;
 export default CommentBody;

@@ -1,34 +1,37 @@
 //ComuPostedScreen.js
 import React, {useState, useContext, useMemo, useRef, useEffect} from 'react';
-import { Keyboard, TouchableWithoutFeedback } from 'react-native';
 import styled from 'styled-components/native';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import { Ionicons, AntDesign, MaterialCommunityIcons, Feather } from '@expo/vector-icons';
 import { Context } from '../../context/context';
-import CommentBody from '../comment/CommentBody'
+import CommentInputBox from '../comment/CommentInputBox';
+import CommentList from '../comment/CommentList';
 
 export default function ComuPostedScreen() {
   const route = useRoute();
   const navigation = useNavigation();
-  const { post_like_context, community_context, postData } = useContext(Context);
+  const { post_like_context, community_context, postData, comment_context, reply_context } = useContext(Context);
   const [selectedType, setSelectedType] = useState(type);
   const [showModal, setShowModal] = useState(false);
   const {post_id, type} = route.params;
+
+  const [newText, setNewText] = useState("");
+  const [replyText, setReplyText] = useState("");
+  const [selectedTextId, setSelectedTextId] = useState(null);
+  const [mode, setMode] = useState("postComment");
+  const [showReplyInputBox, setShowReplyInputBox] = useState(null);
+
+  const sortedComments = postData.comment_list?.sort((a, b) => {
+    return new Date(b.created_at) - new Date(a.created_at);
+  });
+
   useEffect(() => {
     const setPostData = async () => {
       await community_context.get(post_id);
-      setSelectedType(type)
+      setSelectedType(type);
     };
-    setPostData()
-  }, [])
-  useEffect(() => {
-    const setPostData = async () => {
-      await community_context.get(post_id);
-      setSelectedType(type)
-    };
-    setPostData()
-  }, [route])
-  const inputRef = useRef(null);
+    setPostData();
+  }, [route]);
 
   const handleBackPress = () => {
     navigation.navigate("MainTabs", {
@@ -54,7 +57,6 @@ export default function ComuPostedScreen() {
     }
   }
 
-  
   const handleEditPress = () => {
     navigation.navigate('ComuWriteScreen', { isPatch:true, type: selectedType });
   };
@@ -75,23 +77,111 @@ export default function ComuPostedScreen() {
     }
   };
 
-
-  const closeModal = () => {
-    setShowModal(false);
-    setModalType('');
+  const getRepliesForComment = (commentId) => {
+    return postData.reply_list
+      .filter((reply) => reply.commented_id === commentId)
+      .reverse();
   };
 
-  const confirmReply = () => {
-    closeModal();
-    if (inputRef.current) {
-      inputRef.current.focus(); //작성 버튼 클릭 시 포커스
-      Keyboard.addListener('keyboardDidShow', () => {}); //키보드 활성화
+  const handlePostComment = async () => {
+    if (!newText.trim()) return;
+    try {
+      const req = {
+      "body": newText,
+      "post_id": postData.post_id,
+      "post_user_id": postData.user_id,
+      "post_type": postData.post_type
+      }
+      setNewText("")
+      await comment_context.post(req);
+      await community_context.get(postData.post_id)
+      await community_context.get_list(type)
+      
+    } catch (error) {
+      console.error("Error submitting comment:", error);
     }
-    handleReplySubmit();
-  }
+  };
+
+  const handlePatchComment = async () => {
+    if (!newText.trim()) return;
+    const req = {
+      "id": selectedTextId,
+      "body": newText,
+    }
+    setNewText("")
+    setMode("postComment")
+    await comment_context.patch(req);
+    await community_context.get(postData.post_id)
+  };
+
+  const handleDeleteComment = async (post_id) => {
+    try {
+      const req = {
+      "id": post_id
+      }
+      await comment_context.delete(req);
+      await community_context.get(postData.post_id)
+      await community_context.get_list(type)
+      setNewText("")
+      setMode("postComment")
+    } catch (error) {
+      console.error("Error deletting comment:", error);
+    }
+  };
+
+  const handlePostReply = async () => {
+    if (!replyText.trim()) return;
+    try {
+      const req = {
+        "body": replyText,
+        "post_id": postData.post_id,
+        "post_user_id": postData.user_id,
+        "comment_id": selectedTextId,
+        "post_type": postData.post_type
+      }
+      setReplyText("");
+      setShowReplyInputBox(null);
+      await reply_context.post(req);
+      await community_context.get(postData.post_id);
+      await community_context.get_list(type);
+
+      setReplyText("");
+      setShowReplyInputBox(null);
+      setMode("postComment");
+    } catch (error) {
+      console.error("Error submitting reply:", error);
+    }
+  };
+
+  const handlePatchReply = async () => {
+    if (!replyText.trim()) return;
+    const req = {
+      "id": selectedTextId,
+      "body": replyText,
+    }
+    setReplyText("");
+    setShowReplyInputBox(null);
+    setMode("postComment");
+    await reply_context.patch(req);
+    await community_context.get(postData.post_id);
+  };
+
+  const handleDeleteReply = async (post_id) => {
+    try {
+      const req = {
+      "id": post_id
+      }
+      await reply_context.delete(req);
+      await community_context.get(postData.post_id)
+      await community_context.get_list(type)
+      setNewText("")
+      setMode("postComment")
+    } catch (error) {
+      console.error("Error deletting reply:", error);
+    }
+  };
 
   return (
-    <TouchableWithoutFeedback>
     <Wrapper>
 
       <ComuPostedHeader>
@@ -103,7 +193,7 @@ export default function ComuPostedScreen() {
         </ScreenTitleWrapper>
       </ComuPostedHeader>
 
-      <ScrollContainer>
+      <LayoutBox>
         <ComuPostedBox>
           <WriterInfoBox>
             <WriterNameWrapper>
@@ -145,7 +235,7 @@ export default function ComuPostedScreen() {
               >
                 <MaterialCommunityIcons
                   name="message-reply-outline"
-                  size={21}
+                  size={12}
                   color="#8892F7"
                 />
               </ChatIcon>
@@ -169,15 +259,37 @@ export default function ComuPostedScreen() {
           </PostFooter>
           
         </ComuPostedBox>
-          <LayoutBox>
-          
-        </LayoutBox>
-        <CommentBody/>
-      </ScrollContainer>
+      </LayoutBox>
+
+      <CommentInputBox
+        mode={mode}
+        newText={newText}
+        setNewText={setNewText}
+        showReplyInputBox={showReplyInputBox}
+        handlePostComment={handlePostComment}
+        handlePatchComment={handlePatchComment}
+      />
       
+      <CommentList
+        postData={{
+          ...postData,
+          comment_list: postData.comment_list ? postData.comment_list.sort((a, b) => new Date(b.created_at) - new Date(a.created_at)) : [], // 날짜 기준으로 최신순 정렬
+        }}
+        mode={mode}
+        replyText={replyText}
+        setReplyText={setReplyText}
+        selectedTextId={selectedTextId}
+        setSelectedTextId={setSelectedTextId}
+        setMode={setMode}
+        showReplyInputBox={showReplyInputBox}
+        setShowReplyInputBox={setShowReplyInputBox}
+        handlePostReply={handlePostReply}
+        handlePatchReply={handlePatchReply}
+        handleDeleteComment={handleDeleteComment}
+        handleDeleteReply={handleDeleteReply}
+        getRepliesForComment={getRepliesForComment}
+      />
     </Wrapper>
-    
-    </TouchableWithoutFeedback>
   )
 }
 
@@ -201,9 +313,7 @@ const BackButton = styled.TouchableOpacity`
   left: 13px;
 `;
 
-const ScrollContainer = styled.ScrollView`
-  margin-bottom: 80px;
-`;
+const LayoutBox = styled.View``;
 
 const ScreenTitleWrapper = styled.View`
   justify-content: center;
@@ -351,5 +461,3 @@ const UserImage = styled.Image`
   height: 30px;
   border-radius: 15px;
 `;
-
-const LayoutBox = styled.View``;

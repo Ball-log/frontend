@@ -104,7 +104,10 @@ const SettingScreen = () => {
         <View style={styles.texts}>
           <Text style={styles.MainText}>마이팀 변경</Text>
         </View>
-       
+        <Image
+          style={styles.TeamImage}
+          source={{uri: myPage.team_icon_flag}}
+        />
       </TouchableOpacity>
     </View>
   );
