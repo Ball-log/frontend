@@ -103,7 +103,7 @@ const MyPostScreen = () => {
                     color="black"
                   />
                 </TouchableOpacity>
-                <View style={styles.IconWrapper}>
+                <View style={styles.IconWrapper} >
                   <TouchableOpacity onPress={navigateBack}>
                     <AntDesign name="hearto" size={12} color="#E05936" />
                   </TouchableOpacity>
@@ -122,7 +122,7 @@ const MyPostScreen = () => {
       ))}
         
       {postByDate.mvp_list.map((mvp) => (
-        <View style={styles.MvpContainer}>
+        <View style={styles.MvpContainer} key={mvp.mvp_id}>
           <TouchableOpacity
             style={styles.BlogButton}
             onPress={() => navigation.navigate("CheckMVP")}
@@ -134,7 +134,7 @@ const MyPostScreen = () => {
             <View style={styles.MvpBody}>
               <Image
                 style={styles.MvpImage}
-                source={require("../../assets/basic.png")}
+                source={{uri: mvp.mvp_player_profile }}
               />
               <View style={styles.MvpBodyRight}>
                 <View style={styles.MvpBody_1}>
