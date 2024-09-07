@@ -26,7 +26,7 @@ const MyPostScreen = () => {
   const [miniModalVisible2, setMiniModalVisible2] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const navigation = useNavigation();
-  console.log(postByDate.blog_list)
+  console.log(postByDate)
   const navigateBack = () => {
     navigation.goBack();
   };
@@ -84,7 +84,7 @@ const MyPostScreen = () => {
                   source={require("../../assets/Profile.png")}
                 />
                 <View style={styles.Texts}>
-                  <Text style={styles.mainText}>{blog.blog_title}</Text>
+                  <Text style={styles.mainText}>오늘 경기 폼 미쳤다!!!</Text>
                   <Text style={styles.subText}>
                     조회수 : 8회 | 18 : 06 업로드
                   </Text>
