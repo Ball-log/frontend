@@ -63,28 +63,29 @@ const MyPostScreen = () => {
           <Text style={styles.title}>내가 쓴 글</Text>
         </View>
       </View>
-      <View style={styles.BlogContainer}>
-        { postByDate.blog_list.map( (blog) => {
+      
+      {postByDate.blog_list.map((blog) => (
+        <View style={styles.BlogContainer} key={blog.blog_id}>
           <TouchableOpacity
-          style={styles.BlogButton}
-          onPress={() => navigation.navigate("CheckBlog", { post_id })}
+            style={styles.BlogButton}
+            onPress={() => navigation.navigate("CheckBlog")}
           >
             <View style={styles.Tab}>
               <Text style={styles.TabText}>BLOG</Text>
-              <Text style={styles.TabText}>2024.06.25</Text>
+              <Text style={styles.TabText}>{blog.blog_created_at}</Text>
             </View>
             <Image
               style={styles.BlogImage}
-              source={require("../../assets/basic.png")}
+              source={{uri: blog.blog_thumbnail}}
             />
             <View style={styles.TextContainer}>
               <View style={styles.LeftContainer}>
                 <Image
                   style={styles.ProfileImage}
-                  source={require("../../assets/Profile.png")}
+                  source={{uri: myPage.user_icon_url}}
                 />
                 <View style={styles.Texts}>
-                  <Text style={styles.mainText}>오늘 경기 폼 미쳤다!!!</Text>
+                  <Text style={styles.mainText}>{blog.blog_title}</Text>
                   <Text style={styles.subText}>
                     조회수 : 8회 | 18 : 06 업로드
                   </Text>
@@ -106,84 +107,86 @@ const MyPostScreen = () => {
                   <TouchableOpacity onPress={navigateBack}>
                     <AntDesign name="hearto" size={12} color="#E05936" />
                   </TouchableOpacity>
-                  <Text style={styles.LikeCount}>7</Text>
+                  <Text style={styles.LikeCount}>{blog.blog_count_like}</Text>
                   <MaterialCommunityIcons
                     name="message-reply-outline"
                     size={12}
                     color="#8892F7"
                   />
-                  <Text style={styles.ChatCount}>10</Text>
+                  <Text style={styles.ChatCount}>{blog.blog_count_comment}</Text>
                 </View>
               </View>
             </View>
           </TouchableOpacity>
-        })}
+        </View>
+      ))}
         
-      </View>
-      <View style={styles.MvpContainer}>
-        <TouchableOpacity
-          style={styles.BlogButton}
-          onPress={() => navigation.navigate("CheckMVP", { post_id_mvp })}
-        >
-          <View style={styles.Tab}>
-            <Text style={styles.TabText}>MVP</Text>
-            <Text style={styles.TabText}>2024.06.25</Text>
-          </View>
-          <View style={styles.MvpBody}>
-            <Image
-              style={styles.MvpImage}
-              source={require("../../assets/basic.png")}
-            />
-            <View style={styles.MvpBodyRight}>
-              <View style={styles.MvpBody_1}>
-                <View style={styles.TeamName}>
-                  <Image
-                    style={styles.TeamLogoImage}
-                    source={require("../../assets/Teams/Doosan.png")}
-                  />
-                  <Text style={styles.MvpName}>박건우</Text>
-                </View>
-                <View style={styles.settingButtonCon}>
-                  <TouchableOpacity
-                    style={styles.settingButton}
-                    onPress={onPressHandler2}
-                  >
-                    <Ionicons
-                      name="ellipsis-horizontal-sharp"
-                      size={18}
-                      color="black"
+      {postByDate.mvp_list.map((mvp) => (
+        <View style={styles.MvpContainer}>
+          <TouchableOpacity
+            style={styles.BlogButton}
+            onPress={() => navigation.navigate("CheckMVP")}
+          >
+            <View style={styles.Tab}>
+              <Text style={styles.TabText}>MVP</Text>
+              <Text style={styles.TabText}>{mvp.mvp_created_at}</Text>
+            </View>
+            <View style={styles.MvpBody}>
+              <Image
+                style={styles.MvpImage}
+                source={require("../../assets/basic.png")}
+              />
+              <View style={styles.MvpBodyRight}>
+                <View style={styles.MvpBody_1}>
+                  <View style={styles.TeamName}>
+                    <Image
+                      style={styles.TeamLogoImage}
+                      source={{uri: myPage.user_team_icon_flag}}
                     />
-                  </TouchableOpacity>
+                    <Text style={styles.MvpName}>{mvp.mvp_player_name}</Text>
+                  </View>
+                  <View style={styles.settingButtonCon}>
+                    <TouchableOpacity
+                      style={styles.settingButton}
+                      onPress={onPressHandler2}
+                    >
+                      <Ionicons
+                        name="ellipsis-horizontal-sharp"
+                        size={18}
+                        color="black"
+                      />
+                    </TouchableOpacity>
+                  </View>
                 </View>
-              </View>
-              <View style={styles.MvpBody_2}>
-                <Text style={styles.TodayText}>오늘의 기록</Text>
-                <Text>4타수 2안타 1홈런 3타점</Text>
-              </View>
-              <View style={styles.MvpBody_3}>
-                <Text style={styles.subText}>
-                  조회수 : 8회 | 18 : 06 업로드
-                </Text>
-                <View style={styles.IconWrapper}>
-                  <TouchableOpacity
-                    style={styles.LikeButton}
-                    onPress={navigateBack}
-                  >
-                    <AntDesign name="hearto" size={12} color="#E05936" />
-                  </TouchableOpacity>
-                  <Text style={styles.LikeCount}>7</Text>
-                  <MaterialCommunityIcons
-                    name="message-reply-outline"
-                    size={12}
-                    color="#8892F7"
-                  />
-                  <Text style={styles.ChatCount}>10</Text>
+                <View style={styles.MvpBody_2}>
+                  <Text style={styles.TodayText}>오늘의 기록</Text>
+                  <Text>{mvp.mvp_player_record}</Text>
+                </View>
+                <View style={styles.MvpBody_3}>
+                  <Text style={styles.subText}>
+                    조회수 : 8회 | 18 : 06 업로드
+                  </Text>
+                  <View style={styles.IconWrapper}>
+                    <TouchableOpacity
+                      style={styles.LikeButton}
+                      onPress={navigateBack}
+                    >
+                      <AntDesign name="hearto" size={12} color="#E05936" />
+                    </TouchableOpacity>
+                    <Text style={styles.LikeCount}>{mvp.mvp_count_like}</Text>
+                    <MaterialCommunityIcons
+                      name="message-reply-outline"
+                      size={12}
+                      color="#8892F7"
+                    />
+                    <Text style={styles.ChatCount}>{mvp.mvp_count_comment}</Text>
+                  </View>
                 </View>
               </View>
             </View>
-          </View>
-        </TouchableOpacity>
-      </View>
+          </TouchableOpacity>
+        </View>
+      ))}
 
       <ModalComponent
         isVisible={miniModalVisible1}
