@@ -1,17 +1,16 @@
 // LogoutScreen.js
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image, Modal, Pressable } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
+import { Context } from '../../context/context';
 
 const LogoutScreen = ({route}) => {
   const [modalVisible, setModalVisible] = useState(false);
   const navigation = useNavigation();
-  const data = route.params?.data;
-  const profileImgUrl = route.params?.profileImgUrl;
+  const { myPage_context, myPage, postByDate } = useContext(Context);
   
-  console.log('data', data);
-  console.log('profileImgUrl: ', profileImgUrl);
+  console.log('myPage', myPage);
 
   const onPressHandler = () => {
     setModalVisible(true);
@@ -43,11 +42,11 @@ const LogoutScreen = ({route}) => {
           <Text style={styles.title}>내 계정</Text>
         </View>
       </View>
-      <Image style={styles.image} source={{ uri: profileImgUrl || data.user_icon_url}} />
+      <Image style={styles.image} source={{ uri: myPage.user_icon_url}} />
       <TouchableOpacity style={styles.uploadButton}>
         <Image style={styles.Uploadimage} source={require('../../assets/FixButton.png')} />
       </TouchableOpacity>
-      <Text style={styles.username}>{data?.user_name || "이름 없음"}</Text>
+      <Text style={styles.username}>{myPage?.user_name || "이름 없음"}</Text>
       <Text style={styles.email}>balllog07@gmail.com</Text>
       <TouchableOpacity style={styles.button} onPress={onPressHandler}>
         <Text style={styles.buttonText}>로그아웃</Text>

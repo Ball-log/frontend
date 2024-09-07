@@ -1,5 +1,5 @@
 // MyPost.js
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import {
   View,
   Text,
@@ -18,17 +18,15 @@ import {
   Feather,
 } from "@expo/vector-icons";
 import ModalComponent from "../../components/Modal";
+import { Context } from '../../context/context';
 
 const MyPostScreen = () => {
+  const { myPage_context, myPage, postByDate } = useContext(Context);
   const [miniModalVisible1, setMiniModalVisible1] = useState(false);
   const [miniModalVisible2, setMiniModalVisible2] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const navigation = useNavigation();
-
-  const post_id = 539;
-
-  const post_id_mvp = 382;
-
+  console.log(postByDate.blog_list)
   const navigateBack = () => {
     navigation.goBack();
   };
@@ -66,58 +64,61 @@ const MyPostScreen = () => {
         </View>
       </View>
       <View style={styles.BlogContainer}>
-        <TouchableOpacity
+        { postByDate.blog_list.map( (blog) => {
+          <TouchableOpacity
           style={styles.BlogButton}
           onPress={() => navigation.navigate("CheckBlog", { post_id })}
-        >
-          <View style={styles.Tab}>
-            <Text style={styles.TabText}>BLOG</Text>
-            <Text style={styles.TabText}>2024.06.25</Text>
-          </View>
-          <Image
-            style={styles.BlogImage}
-            source={require("../../assets/basic.png")}
-          />
-          <View style={styles.TextContainer}>
-            <View style={styles.LeftContainer}>
-              <Image
-                style={styles.ProfileImage}
-                source={require("../../assets/Profile.png")}
-              />
-              <View style={styles.Texts}>
-                <Text style={styles.mainText}>오늘 경기 폼 미쳤다!!!</Text>
-                <Text style={styles.subText}>
-                  조회수 : 8회 | 18 : 06 업로드
-                </Text>
-              </View>
+          >
+            <View style={styles.Tab}>
+              <Text style={styles.TabText}>BLOG</Text>
+              <Text style={styles.TabText}>2024.06.25</Text>
             </View>
+            <Image
+              style={styles.BlogImage}
+              source={require("../../assets/basic.png")}
+            />
+            <View style={styles.TextContainer}>
+              <View style={styles.LeftContainer}>
+                <Image
+                  style={styles.ProfileImage}
+                  source={require("../../assets/Profile.png")}
+                />
+                <View style={styles.Texts}>
+                  <Text style={styles.mainText}>{blog.blog_title}</Text>
+                  <Text style={styles.subText}>
+                    조회수 : 8회 | 18 : 06 업로드
+                  </Text>
+                </View>
+              </View>
 
-            <View style={styles.Set_IconContainer}>
-              <TouchableOpacity
-                style={styles.settingButton}
-                onPress={onPressHandler1}
-              >
-                <Ionicons
-                  name="ellipsis-horizontal-sharp"
-                  size={18}
-                  color="black"
-                />
-              </TouchableOpacity>
-              <View style={styles.IconWrapper}>
-                <TouchableOpacity onPress={navigateBack}>
-                  <AntDesign name="hearto" size={12} color="#E05936" />
+              <View style={styles.Set_IconContainer}>
+                <TouchableOpacity
+                  style={styles.settingButton}
+                  onPress={onPressHandler1}
+                >
+                  <Ionicons
+                    name="ellipsis-horizontal-sharp"
+                    size={18}
+                    color="black"
+                  />
                 </TouchableOpacity>
-                <Text style={styles.LikeCount}>7</Text>
-                <MaterialCommunityIcons
-                  name="message-reply-outline"
-                  size={12}
-                  color="#8892F7"
-                />
-                <Text style={styles.ChatCount}>10</Text>
+                <View style={styles.IconWrapper}>
+                  <TouchableOpacity onPress={navigateBack}>
+                    <AntDesign name="hearto" size={12} color="#E05936" />
+                  </TouchableOpacity>
+                  <Text style={styles.LikeCount}>7</Text>
+                  <MaterialCommunityIcons
+                    name="message-reply-outline"
+                    size={12}
+                    color="#8892F7"
+                  />
+                  <Text style={styles.ChatCount}>10</Text>
+                </View>
               </View>
             </View>
-          </View>
-        </TouchableOpacity>
+          </TouchableOpacity>
+        })}
+        
       </View>
       <View style={styles.MvpContainer}>
         <TouchableOpacity

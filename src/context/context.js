@@ -117,13 +117,13 @@ const ContextProvider = ({children}) => {
         get: async () => {
             try {
                 const result = await myPage_api.get();
-                console.log(result);
                 setMyPage(result)
             } catch (error) {
                 //reply_error.post(error);
             }
         },
         get_post: async (date) => {
+            console.log("date in context:", date)
             try {
                 const result = await myPage_api.get_post(date);
                 setPostByDate(result)

@@ -4,11 +4,8 @@ import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View } from 'react-native';
 import useFonts from './src/hooks/useFonts';
 import StackNavigator from './src/navigation/StackNavigator';
-
 import { ContextProvider } from './src/context/context';
 
-import NotificationBanner from './src/screens/NotificationBanner'
-import { store } from './src/utils/secureStore'
 
 export default function App() {
   
@@ -20,7 +17,7 @@ export default function App() {
 
   return (
     <ContextProvider>
-          <NotificationBanner/>
+          
           <StackNavigator />
           <StatusBar style="auto" />
     </ContextProvider>

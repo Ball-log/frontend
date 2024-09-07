@@ -1,16 +1,15 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import { View, Text, StyleSheet, TouchableOpacity, Image } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
 import { getPresignedUrl, uploadFileToS3 } from "../../components/S3";
-import { teamImages } from "../../utils/team_images";
+import { Context } from '../../context/context';
 
-const SettingScreen = ({route}) => {
+const SettingScreen = () => {
   const navigation = useNavigation();
   const [image, setImage] = useState(null);
-  const { team, profileImgUrl } = route.params || {};
-  const data = route.params?.data;
+  const { myPage_context, myPage, postByDate } = useContext(Context);
 
   const pickImage = async () => {
     const permissionResult =
@@ -34,7 +33,8 @@ const SettingScreen = ({route}) => {
       try {
         const fileName = selectedImageUri.split("/").pop();
         const fileType = `image/${fileName.split(".").pop()}`;
-
+        
+        console.log("!!!", )
         const presignedUrl = await getPresignedUrl(
           fileName,
           "background",
@@ -46,11 +46,15 @@ const SettingScreen = ({route}) => {
 
         await uploadFileToS3(presignedUrl, blob);
 
+        
+        const req = {
+          "user_background_img": `https://ballog.s3.ap-northeast-2.amazonaws.com/background/${fileName}`
+        }
+        await myPage_context.patch_background_img(req)
+        await myPage_context.get()
         alert("이미지 업로드 성공");
 
-        navigation.navigate("MyPageScreen", {
-          data: { ...data, user_background_img: presignedUrl.split("?")[0] },
-        });
+        navigation.navigate("MyPageScreen");
       } catch (error) {
         console.error("이미지 업로드 중 오류 발생:", error);
         alert("이미지 업로드 실패");
@@ -58,8 +62,6 @@ const SettingScreen = ({route}) => {
     }
   };
 
-  console.log('내 팀', team);
-  console.log('data', data);
 
   return (
     <View style={styles.container}>
@@ -73,15 +75,15 @@ const SettingScreen = ({route}) => {
       </View>
       <TouchableOpacity
         style={styles.button}
-        onPress={() => navigation.navigate("LogoutScreen", {data, profileImgUrl})}
+        onPress={() => navigation.navigate("LogoutScreen")}
       >
         <View style={styles.texts}>
-          <Text style={styles.MainText}>{data?.user_name || "이름 없음"}</Text>
+          <Text style={styles.MainText}>{myPage.user_name}</Text>
           <Text style={styles.SubText}>Google 계정</Text>
         </View>
         <Image
           style={styles.ProfileImage}
-          source={{uri: profileImgUrl || data.user_icon_url}}
+          source={{uri: myPage.user_icon_url}}
         />
       </TouchableOpacity>
       <TouchableOpacity style={styles.button} onPress={pickImage}>
@@ -97,16 +99,12 @@ const SettingScreen = ({route}) => {
       </TouchableOpacity>
       <TouchableOpacity
         style={styles.button}
-        onPress={() => navigation.navigate("TeamSelect", {profileImgUrl})}
+        onPress={() => navigation.navigate("TeamSelect")}
       >
         <View style={styles.texts}>
           <Text style={styles.MainText}>마이팀 변경</Text>
-          <Text style={styles.SubText}>{team?.team_name || '선택된 팀 없음'}</Text>
         </View>
-        <Image
-          style={styles.TeamImage}
-          source={teamImages[team.team_icon_flag]}
-        />
+       
       </TouchableOpacity>
     </View>
   );
