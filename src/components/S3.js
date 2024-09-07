@@ -4,7 +4,6 @@ export const getPresignedUrl = async (fileName, fileLocation, fileType) => {
   // S3 프리사인드 URL을 요청하는 함수
   const token = await store.get("Authorization");
   try {
-    console.log("API_TOKEN:", token);
     const response = await fetch("https://api.ballog.store/api-utils/s3", {
       method: "POST",
       headers: {
@@ -44,7 +43,6 @@ export const uploadFileToS3 = async (presignedUrl, file) => {
     });
 
     if (response.ok) {
-      console.log("파일이 성공적으로 업로드되었습니다.");
     } else {
       throw new Error("파일 업로드 중 오류가 발생했습니다.");
     }

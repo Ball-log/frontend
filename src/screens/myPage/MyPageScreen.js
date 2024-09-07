@@ -28,6 +28,7 @@ const MyPageScreen = () => {
     };
     fetchData(); // 컴포넌트 마운트 시 데이터 가져오기
   }, []);
+
   const formatMatchDate = (dateString) => {
     const date = new Date(dateString);
     const month = date.getMonth() + 1; // 월 (0-11이므로 +1)
@@ -40,38 +41,39 @@ const MyPageScreen = () => {
     navigation.navigate("SettingScreen", {myPage});
   };
 
-  const onDayPress = (day) => {
+  const onDayPress = async (day) => {
     const selectedDate = day.dateString;
-    
-    const isRedDate =
-      markedDates[selectedDate] &&
-      markedDates[selectedDate].selectedColor === "#E8A5B0";
+    console.log("selectedDate: ", selectedDate);
+    const isRedDate = markedDates[selectedDate]
     if (isRedDate) {
+      await myPage_context.get_post(selectedDate)
       navigation.navigate("MyPostScreen");
     }
   };
   const redDates = myPage && myPage.writed_date_list ? myPage.writed_date_list : [];
-  console.log("Fetched redDates:", redDates);
-  const today = new Date().toISOString().split("T")[0];
+  const options = { year: 'numeric', month: '2-digit', day: '2-digit', timeZone: 'Asia/Seoul' };
+  const today = new Date().toLocaleDateString('en-CA', options);
+
 
   const markedDates = redDates.reduce((acc, date) => {
-    const formattedDate = new Date(date).toISOString().split("T")[0]; // 날짜 형식을 YYYY-MM-DD로 변환
-    acc[formattedDate] = {
+    acc[date] = {
       selected: true,
       selectedColor: "#E8A5B0",
     };
     return acc;
   }, {});
-  console.log("Fetched markDates:", markedDates);
-
-  markedDates[today] = { selected: true, selectedColor: "#CDCDCD" };
   console.log('myPage', myPage);
+  console.log("Fetched markDates:", markedDates);
+  console.log('redDates[today]', redDates.includes(today));
+
+  markedDates[today] = redDates.includes(today) ? { selected: true, selectedColor: "#E8A5B0" } : { selected: true, selectedColor: "#CDCDCD" };
+
 
   return (
     <View style={styles.container}>
-      <ImageBackground source={myPage.user_background_img} style={styles.BasicImage}>
+      <ImageBackground source={{uri : myPage.user_background_img}} style={styles.BasicImage}>
         {myPage && (
-          <Image style={styles.TeamImage} source={myPage.team_icon_round} />
+          <Image style={styles.TeamImage} source={{uri:myPage.team_icon_round} }/>
         )}
         <TouchableOpacity
           style={styles.SettingImageButton}
@@ -141,7 +143,7 @@ const MyPageScreen = () => {
             hideExtraDays={true}
             monthFormat={"yyyy / MM"}
             onMonthChange={(month) => {
-              console.log(month);
+
             }}
             renderArrow={(direction) =>
               direction === "left" ? (
