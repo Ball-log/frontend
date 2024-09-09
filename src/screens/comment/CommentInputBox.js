@@ -6,38 +6,33 @@ const CommentInputBox = ({
   mode,
   newText,
   setNewText,
+  showCommentEditBox,
   showReplyInputBox,
+  showReplyEditBox,
   handlePostComment,
-  handlePatchComment,
 }) => {
+  
+  const isDisabled = showReplyInputBox || showCommentEditBox || showReplyEditBox;
+
   return (
     <InputWrapper>
-      <InputBoxWrapper style={{ opacity: showReplyInputBox ? 0.5 : 1 }}>
+      <InputBoxWrapper style={{ opacity: isDisabled ? 0.5 : 1 }}>
         <InputBox
           placeholder={
-            mode === "postComment"
-              ? "댓글을 입력해주세요"
-              : mode === "patchComment"
-              ? "댓글을 수정해주세요"
-              : ""
+            mode === "postComment" ? "댓글을 입력해주세요" : 
+            ""
           }
           placeholderTextColor="#B5B5B5"
           multiline
-          value={newText}
+          value={mode === "postComment" ? newText : ""}
           onChangeText={text => setNewText(text)}
-          editable={!showReplyInputBox} // 답글창이 열려있을 때 댓글창 비활성화
+          editable={!isDisabled} // 답글창이 열려있을 때 댓글창 비활성화
         />
         <UploadButton
-          onPress={() => {
-            if (mode === "postComment") {
-              handlePostComment();
-            } else if (mode === "patchComment") {
-              handlePatchComment();
-            }
-          }}
-          disabled={showReplyInputBox}
+          onPress={handlePostComment}
+          disabled={isDisabled}
         >
-          <Feather name="send" size={24} color={showReplyInputBox ? "#B5B5B5" : "#C51E3A"} />
+          <Feather name="send" size={24} color={isDisabled ? "#B5B5B5" : "#C51E3A"} />
         </UploadButton>
       </InputBoxWrapper>
     </InputWrapper>
