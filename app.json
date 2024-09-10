@@ -1,35 +1,7 @@
 {
   "expo": {
-    "name": "ballog",
-    "slug": "ballog",
-    "version": "1.0.0",
-    "orientation": "portrait",
-    "icon": "./src/assets/icon.png",
-    "userInterfaceStyle": "light",
-    "splash": {
-      "image": "./src/assets/icon.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#C51E3A",
-      "imageStyle": {
-        "width": 100,
-        "height": 100
-      }
-    },
-    "ios": {
-      "supportsTablet": true
-    },
-    "android": {
-      "adaptiveIcon": {
-        "foregroundImage": "./src/assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
-      }
-    },
-
-    "web": {
-      "favicon": "./src/assets/favicon.png"
-    },
-    "plugins": [
-      "expo-secure-store"
-    ]
+    "name": "Ballog",
+    "slug": "Ballog",
+    "version": "1.0.0"
   }
 }
