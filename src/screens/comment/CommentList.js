@@ -1,22 +1,29 @@
 import React from "react";
 import styled from "styled-components/native";
-import ReplyInputBox from "./ReplyInputBox";
+import TextInputBox from "./TextInputBox";
 
 const CommentList = ({
   postData,
   mode,
+  newText,
+  setNewText,
   replyText,
   setReplyText,
-  selectedTextId,
   setSelectedTextId,
   setMode,
+  showCommentEditBox,
+  setShowCommentEditBox,
   showReplyInputBox,
   setShowReplyInputBox,
+  showReplyEditBox,
+  setShowReplyEditBox,
+  handlePatchComment,
   handlePostReply,
   handlePatchReply,
   handleDeleteComment,
   handleDeleteReply,
   getRepliesForComment,
+  onCancel,
   inverted
 }) => {
   return (
@@ -50,8 +57,9 @@ const CommentList = ({
                       <ReplyButton
                         onPress={() => {
                           setSelectedTextId(comment.comment_id);
-                          setReplyText(comment.comment_body);
+                          setNewText(comment.comment_body);
                           setMode("patchComment");
+                          setShowCommentEditBox(comment.comment_id);
                         }}
                       >
                         <ReplyButtonText>수정</ReplyButtonText>
@@ -65,12 +73,25 @@ const CommentList = ({
               </DetailTimeWrapper>
             </CommentsBox>
 
+            {/*댓글 수정 시 뜨는 모달*/}
+            {showCommentEditBox === comment.comment_id && (
+              <TextInputBox
+                value={newText}
+                onChange={text => setNewText(text)}
+                onSubmit={handlePatchComment}
+                onCancel={onCancel}
+                mode={mode}
+              />
+            )}
+
+            {/*답글 작성 시 뜨는 모달*/}
             {showReplyInputBox === comment.comment_id && (
-              <ReplyInputBox
+              <TextInputBox
                 value={replyText}
                 onChange={setReplyText}
-                onSubmit={mode === "postReply" ? handlePostReply : handlePatchReply}
-                onCancel={() => setShowReplyInputBox(null)}
+                onSubmit={handlePostReply}
+                onCancel={onCancel}
+                mode={mode}
               />
             )}
 
@@ -97,7 +118,7 @@ const CommentList = ({
                                   setSelectedTextId(reply.reply_id);
                                   setReplyText(reply.reply_body);
                                   setMode("patchReply");
-                                  setShowReplyInputBox(comment.comment_id);
+                                  setShowReplyEditBox(reply.reply_id);
                                 }}
                               >
                                 <ReplyButtonText>수정</ReplyButtonText>
@@ -110,6 +131,18 @@ const CommentList = ({
                         </DetailFooter>
                       </DetailTimeWrapper>
                     </CommentsBox>
+
+                    {/*답글 수정 시 뜨는 모달*/}
+                    {showReplyEditBox === reply.reply_id && (
+                      <TextInputBox
+                        value={replyText}
+                        onChange={text => setReplyText(text)}
+                        onSubmit={handlePatchReply}
+                        onCancel={onCancel}
+                        mode={mode}
+                      />
+                    )}
+
                   </CommentsBoxWrapper>
                 ))}
               </RepliesWrapper>

@@ -21,7 +21,9 @@ const CommentScreen = () => {
   const [selectedTextId, setSelectedTextId] = useState(null);
   const [mode, setMode] = useState("postComment")
   const [keyboardHeight, setKeyboardHeight] = useState(0);
+  const [showCommentEditBox, setShowCommentEditBox] = useState(null);
   const [showReplyInputBox, setShowReplyInputBox] = useState(null);
+  const [showReplyEditBox, setShowReplyEditBox] = useState(null);
 
   useEffect(() => {
     const keyboardDidShowListener = Keyboard.addListener(
@@ -52,7 +54,6 @@ const CommentScreen = () => {
   const handlePostComment = async () => {
     if (!newText.trim()) return;
     try {
-      Keyboard.dismiss();
       const req = {
       "body": newText,
       "post_id": postData.post_id,
@@ -76,6 +77,7 @@ const CommentScreen = () => {
       "body": newText,
     }
     setNewText("")
+    setShowCommentEditBox(null);
     setMode("postComment")
     await comment_context.patch(req);
     await community_context.get(postData.post_id)
@@ -99,7 +101,6 @@ const CommentScreen = () => {
   const handlePostReply = async () => {
     if (!replyText.trim()) return;
     try {
-      Keyboard.dismiss();
       const req = {
         "body": replyText,
         "post_id": postData.post_id,
@@ -128,7 +129,7 @@ const CommentScreen = () => {
       "body": replyText,
     }
     setReplyText("");
-    setShowReplyInputBox(null);
+    setShowReplyEditBox(null);
     setMode("postComment");
     await reply_context.patch(req);
     await community_context.get(postData.post_id);
@@ -147,6 +148,15 @@ const CommentScreen = () => {
     } catch (error) {
       console.error("Error deletting reply:", error);
     }
+  };
+
+  const handleCancel = () => {
+    setMode("postComment");
+    setNewText("");
+    setReplyText("");
+    setShowCommentEditBox(null);
+    setShowReplyInputBox(null);
+    setShowReplyEditBox(null);
   };
 
   return (
@@ -172,29 +182,46 @@ const CommentScreen = () => {
         <CommentList
           postData={postData}
           mode={mode}
+          setMode={setMode}
+
+          newText={newText}
+          setNewText={setNewText}
           replyText={replyText}
           setReplyText={setReplyText}
           selectedTextId={selectedTextId}
           setSelectedTextId={setSelectedTextId}
-          setMode={setMode}
+
+          showCommentEditBox={showCommentEditBox}
+          setShowCommentEditBox={setShowCommentEditBox}
           showReplyInputBox={showReplyInputBox}
           setShowReplyInputBox={setShowReplyInputBox}
+          showReplyEditBox={showReplyEditBox}
+          setShowReplyEditBox={setShowReplyEditBox}
+
+          handlePatchComment={handlePatchComment}
           handlePostReply={handlePostReply}
           handlePatchReply={handlePatchReply}
           handleDeleteComment={handleDeleteComment}
           handleDeleteReply={handleDeleteReply}
           getRepliesForComment={getRepliesForComment}
+
+          onCancel={handleCancel}
+
           inverted
         />
         
         <CommentInputBox
-          mode={mode}
-          newText={newText}
-          setNewText={setNewText}
-          showReplyInputBox={showReplyInputBox}
-          handlePostComment={handlePostComment}
-          handlePatchComment={handlePatchComment}
-        />
+        mode={mode}
+        newText={newText}
+        setNewText={setNewText}
+
+        showCommentEditBox={showCommentEditBox}
+        showReplyInputBox={showReplyInputBox}
+        showReplyEditBox={showReplyEditBox}
+
+        handlePostComment={handlePostComment}
+        handlePatchComment={handlePatchComment}
+      />
 
       </KeyboardAvoidingView>
     </Wrapper>

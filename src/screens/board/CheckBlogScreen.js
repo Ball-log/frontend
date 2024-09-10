@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext} from "react";
 import styled from "styled-components/native";
 import {
   TouchableWithoutFeedback,
@@ -13,107 +13,25 @@ import {
   Feather,
   AntDesign,
 } from "@expo/vector-icons";
-import { colors, fonts } from "../global";
-import axios from "axios";
-import { API_TOKEN } from "@env";
+import { colors, fonts } from "../../global";
+import { Context } from '../../context/context';
 
-const teamImages = {
-  두산: require("../assets/Teams/Doosan.png"),
-  한화: require("../assets/Teams/Hanwha.png"),
-  기아: require("../assets/Teams/KIA.png"),
-  키움: require("../assets/Teams/Kiwoom.png"),
-  KT: require("../assets/Teams/KT.png"),
-  LG: require("../assets/Teams/LG.png"),
-  롯데: require("../assets/Teams/LOTTE.png"),
-  NC: require("../assets/Teams/NC.png"),
-  삼성: require("../assets/Teams/Samsung.png"),
-  신세계: require("../assets/Teams/SSG.png"),
 
-  // 추가적인 팀 이미지 경로는 여기에 추가
-};
-
-const getTeamImage = (teamName) =>
-  teamImages[teamName] || require("../assets/icon.png"); // 기본 이미지 경로를 추가할 수 있음
 
 const CheckBlog = () => {
+  const { board_context, myPage, postByDate, postData } = useContext(Context);
   const [showButtons, setShowButtons] = useState(false);
-  const [blogData, setBlogData] = useState(null);
-  const [likeCount, setLikeCount] = useState(
-    blogData ? blogData.like_count : 0
-  );
-
-  const createdDate = blogData
-    ? blogData.match_info.match_date.split("T")[0]
+  console.log("!!!", postData)
+  const createdDate = postData.match_info
+    ? postData.match_info.match_date.split(" ")[0]
     : "Loading...";
-  const gameDate = blogData
-    ? new Date(blogData.created_at).toLocaleDateString("en-US", {
+  const gameDate = postData
+    ? new Date(postData.created_at).toLocaleDateString("en-US", {
         month: "numeric",
         day: "numeric",
       })
     : "Loading...";
-
-  useEffect(() => {
-    if (blogData) {
-      setLikeCount(blogData.like_count);
-    }
-  }, [blogData]);
-
-  const route = useRoute();
   const navigation = useNavigation();
-
-  const apiUrl = "https://api.ballog.store";
-  const { post_id } = route.params;
-
-  useEffect(() => {
-    console.log(`Fetching data from ${apiUrl}/board/post/${post_id}`);
-    console.log("API_TOKEN:", API_TOKEN);
-    axios
-      .get(`${apiUrl}/board/post/${post_id}`, {
-        headers: {
-          Authorization: `Bearer ${API_TOKEN}`,
-          "Content-Type": "application/json",
-          Accept: "application/json", // Ensure server responds with JSON
-        },
-      })
-      .then((response) => {
-        console.log("API Response Status:", response.status);
-        console.log("API Response Headers:", response.headers);
-        console.log("API Response Data:", response.data);
-
-        if (response.data.result === null || response.data.deleted) {
-          // 게시글이 삭제된 상태라면
-          Alert.alert("삭제된 게시글", "이 게시글은 삭제되었습니다.", [
-            { text: "확인", onPress: () => navigation.goBack() },
-          ]);
-        } else {
-          setBlogData(response.data.result); // Save response data to state
-        }
-      })
-      .catch((error) => {
-        if (error.response) {
-          console.error("API Error Response Status:", error.response.status);
-          console.error("API Error Response Headers:", error.response.headers);
-          console.error("API Error Response Data:", error.response.data);
-
-          if (error.response.status === 404) {
-            // 404 에러(삭제된 게시글일 가능성 있음)
-            Alert.alert("삭제된 게시글", "이 게시글은 삭제되었습니다.", [
-              { text: "확인", onPress: () => navigation.goBack() },
-            ]);
-          } else {
-            Alert.alert("오류", "게시글을 불러오는 데 문제가 발생했습니다.", [
-              { text: "확인", onPress: () => navigation.goBack() },
-            ]);
-          }
-        } else if (error.request) {
-          console.error("API Error Request:", error.request);
-        } else {
-          console.error("API Error Message:", error.message);
-        }
-        console.error("API Error Config:", error.config);
-      });
-  }, [post_id]);
-
   const handleBackPress = () => {
     navigation.goBack();
   };
@@ -122,9 +40,6 @@ const CheckBlog = () => {
     setShowButtons((prev) => !prev);
   };
 
-  const handleLikeCount = () => {
-    setLikeCount((prevLikeCount) => prevLikeCount + 1);
-  };
 
   const handleDeletePress = () => {
     Alert.alert(
@@ -188,12 +103,11 @@ const CheckBlog = () => {
   // ContentImage의 source 속성 값 결정
   const getContentImages = () => {
     if (
-      blogData &&
-      blogData.img_urls &&
-      blogData.img_urls.imgUrls &&
-      blogData.img_urls.imgUrls.length > 0
+      postData &&
+      postData.img_urls &&
+      postData.img_urls.length > 0
     ) {
-      return blogData.img_urls.imgUrls.map((url, index) => {
+      return postData.img_urls.map((url, index) => {
         // url이 유효한 경우에만 ContentImage를 렌더링
         if (url) {
           return <ContentImage key={index} source={{ uri: url }} />;
@@ -210,15 +124,15 @@ const CheckBlog = () => {
           <Ionicons name="chevron-back" size={24} color="black" />
         </BackButton>
         <UserWrapper>
-          <FileIcon source={require("../assets/Order.png")} />
-          <UserName>{blogData ? blogData.user_name : "Loading..."}</UserName>
+          <FileIcon source={require("../../assets/Order.png")} />
+          <UserName>{postData ? postData.user_name : "Loading..."}</UserName>
         </UserWrapper>
       </UserHeader>
       <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
         <Container>
           <SettingWrapper>
             <SettingButton onPress={handleSettingsPress}>
-              <SettingIcon source={require("../assets/Settings.png")} />
+              <SettingIcon source={require("../../assets/Settings.png")} />
             </SettingButton>
           </SettingWrapper>
           {showButtons && (
@@ -243,15 +157,15 @@ const CheckBlog = () => {
           <TitleWrapper>
             <UserTypeWrapper>
               <UserType>
-                {blogData ? blogData.post_type.toUpperCase() : "Loading..."}
+                {postData.post_type ? postData.post_type.toUpperCase() : "Loading..."}
               </UserType>
             </UserTypeWrapper>
-            <Title>{blogData ? blogData.title : "Loading..."}</Title>
+            <Title>{postData ? postData.title : "Loading..."}</Title>
             <UserImage
               source={
-                blogData
-                  ? { uri: blogData.user_icon_url }
-                  : require("../assets/Profile.png")
+                postData
+                  ? { uri: postData.user_icon_url }
+                  : require("../../assets/Profile.png")
               }
             />
             <DateTime>{createdDate}</DateTime>
@@ -262,20 +176,20 @@ const CheckBlog = () => {
             </ScoreDate>
             <Score>
               <ScoreImage
-                source={getTeamImage(blogData?.match_info?.home_team_name)}
+                source={{uri: postData.match_info.home_team_icon_flag }}
               />
               <ScoreNum>
-                {blogData ? blogData.match_info.home_team_score : "Loading..."}{" "}
+                {postData.match_info ? postData.match_info.home_team_score : "Loading..."}{" "}
                 :{" "}
-                {blogData ? blogData.match_info.away_team_score : "Loading..."}
+                {postData.match_info ? postData.match_info.away_team_score : "Loading..."}
               </ScoreNum>
               <ScoreImage
-                source={getTeamImage(blogData?.match_info?.away_team_name)}
+                source={{uri: postData.match_info.away_team_icon_flag }}
               />
             </Score>
           </ScoreWrapper>
           <ContentWrapper>
-            <ContentText>{blogData ? blogData.body : "Loading..."}</ContentText>
+            <ContentText>{postData ? postData.body : "Loading..."}</ContentText>
             {getContentImages()}
           </ContentWrapper>
         </Container>
@@ -283,10 +197,10 @@ const CheckBlog = () => {
 
       <PostFooter>
         <IconWrapper>
-          <LikeIcon onPress={handleLikeCount}>
+          <LikeIcon onPress={("test")}>
             <AntDesign name="hearto" size={21} color="#E05936" />
           </LikeIcon>
-          <LikeCount>{likeCount}</LikeCount>
+          <LikeCount>{postData.like_count}</LikeCount>
           <ChatIcon onPress={() => navigation.navigate("Comment", { post_id })}>
             <MaterialCommunityIcons
               name="message-reply-outline"
@@ -295,11 +209,11 @@ const CheckBlog = () => {
             />
           </ChatIcon>
           <ChatCount>
-            {blogData ? blogData.comment_list.length : "Loading..."}
+            {postData.comment_count ? postData.comment_count : "Loading..."}
           </ChatCount>
         </IconWrapper>
         <BookmarkButton>
-          <BookmarkImage source={require("../assets/Bookmark.png")} />
+          <BookmarkImage source={require("../../assets/Bookmark.png")} />
         </BookmarkButton>
       </PostFooter>
     </Wrapper>

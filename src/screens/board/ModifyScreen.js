@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import styled from "styled-components/native";
-import { colors, fonts } from "../global";
+import { colors, fonts } from "../../global";
 import RNPickerSelect from "react-native-picker-select";
 import {
   TouchableWithoutFeedback,

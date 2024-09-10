@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import styled from "styled-components/native";
-import { colors, fonts } from "../global";
+import { colors, fonts } from "../../global";
 import {
   AntDesign,
   FontAwesome5,
@@ -17,83 +17,23 @@ import {
   ScrollView,
   Keyboard,
   TouchableWithoutFeedback,
-  Alert,
 } from "react-native";
-import axios from "axios";
-import { API_TOKEN } from "@env";
-import { useNavigation, useRoute } from "@react-navigation/native";
 
-const ModifyBlog = () => {
-  const route = useRoute();
-  const navigation = useNavigation();
-  const { post_id } = route.params || {}; // 안전하게 접근하기 위해 디폴트 객체 사용
+const ModifyMvp = () => {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
+  const [playerContent, setPlayerContent] = useState("");
   const [gameDate, setGameDate] = useState(null);
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
-  const [images, setImages] = useState([]);
+  const [images, setImages] = useState([]); // 여러 이미지를 저장할 배열 상태
+  const [playerImage, setPlayerImage] = useState(null); // 선수 이미지 상태 추가
   const [showTextOptions, setShowTextOptions] = useState(false);
   const [showLineSpacingOptions, setShowLineSpacingOptions] = useState(false);
   const [showColorOptions, setShowColorOptions] = useState(false);
-  const [showSizeOptions, setShowSizeOptions] = useState(false);
+  const [showSizeOptions, setShowSizeOptions] = useState(false); // 추가된 상태
   const [textAlign, setTextAlign] = useState("left");
   const [textColor, setTextColor] = useState(colors.text);
-  const [textSize, setTextSize] = useState(fonts.sizes.small);
-
-  useEffect(() => {
-    if (post_id) {
-      const fetchBlogData = async () => {
-        try {
-          const response = await axios.get(
-            `https://api.ballog.store/board/post/${post_id}`,
-            {
-              headers: {
-                Authorization: `Bearer ${API_TOKEN}`,
-                "Content-Type": "application/json",
-                Accept: "application/json",
-              },
-            }
-          );
-          const data = response.data.result;
-          setTitle(data.title);
-          setContent(data.body);
-          setGameDate(data.game_date ? new Date(data.game_date) : null);
-          setImages(data.images || []);
-        } catch (error) {
-          console.error("Error fetching blog data:", error);
-          Alert.alert("Error", "Failed to fetch blog data.");
-        }
-      };
-
-      fetchBlogData();
-    }
-  }, [post_id]);
-
-  const handleSave = async () => {
-    try {
-      await axios.put(
-        `https://api.ballog.store/board/post/${post_id}`,
-        {
-          title,
-          body: content,
-          img_urls: images, // 수정된 내용: `images`를 `img_urls`로 전송
-          game_date: gameDate ? gameDate.toISOString() : null,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${API_TOKEN}`,
-            "Content-Type": "application/json",
-            Accept: "application/json",
-          },
-        }
-      );
-      Alert.alert("Success", "Blog post updated successfully.");
-      navigation.goBack();
-    } catch (error) {
-      console.error("Error updating blog post:", error);
-      Alert.alert("Error", "Failed to update blog post.");
-    }
-  };
+  const [textSize, setTextSize] = useState(fonts.sizes.small); // 기본 글자 크기
 
   useEffect(() => {
     (async () => {
@@ -112,12 +52,32 @@ const ModifyBlog = () => {
     setDatePickerVisibility(false);
   };
 
+  const pickPlayerImage = async () => {
+    console.log("pickPlayerImage function called");
+    try {
+      let result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [4, 3],
+        quality: 1,
+      });
+
+      if (!result.canceled) {
+        const uri = result.assets ? result.assets[0].uri : result.uri;
+        setPlayerImage(uri);
+        setPlayerContent((prevContent) => `${prevContent}\n![Image](${uri})`);
+      }
+    } catch (error) {
+      console.error("Error picking player image:", error);
+    }
+  };
+
   const pickImages = async () => {
     console.log("pickImages function called");
     try {
       let result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
-        allowsMultipleSelection: true,
+        allowsMultipleSelection: true, // 여러 이미지 선택 허용
         quality: 1,
       });
 
@@ -134,32 +94,36 @@ const ModifyBlog = () => {
     setImages((prevImages) => prevImages.filter((image) => image !== uri));
   };
 
+  const handleRemovePlayerImage = () => {
+    setPlayerImage(null);
+  };
+
   const toggleTextOptions = () => {
     setShowTextOptions(!showTextOptions);
     setShowLineSpacingOptions(false);
     setShowColorOptions(false);
-    setShowSizeOptions(false);
+    setShowSizeOptions(false); // 사이즈 옵션 숨기기
   };
 
   const toggleLineSpacingOptions = () => {
     setShowLineSpacingOptions(!showLineSpacingOptions);
     setShowTextOptions(false);
     setShowColorOptions(false);
-    setShowSizeOptions(false);
+    setShowSizeOptions(false); // 사이즈 옵션 숨기기
   };
 
   const toggleColorOptions = () => {
     setShowColorOptions(!showColorOptions);
     setShowTextOptions(false);
     setShowLineSpacingOptions(false);
-    setShowSizeOptions(false);
+    setShowSizeOptions(false); // 사이즈 옵션 숨기기
   };
 
   const toggleSizeOptions = () => {
     setShowSizeOptions(!showSizeOptions);
     setShowTextOptions(false);
     setShowLineSpacingOptions(false);
-    setShowColorOptions(false);
+    setShowColorOptions(false); // 색상 옵션 숨기기
   };
 
   const applyStyle = (style) => {
@@ -209,6 +173,23 @@ const ModifyBlog = () => {
             value={title}
             onChangeText={setTitle}
           />
+          <PlayerContainer>
+            {playerImage ? (
+              <>
+                <ImagePreview source={{ uri: playerImage }} />
+                <RemoveImageButton onPress={handleRemovePlayerImage}>
+                  <AntDesign name="delete" size={24} color={colors.icon} />
+                </RemoveImageButton>
+              </>
+            ) : (
+              <>
+                <PlayerText>선수 사진을 업로드 하세요.</PlayerText>
+                <PlayerButton onPress={pickPlayerImage}>
+                  <Feather name="camera" size={24} color={colors.icon} />
+                </PlayerButton>
+              </>
+            )}
+          </PlayerContainer>
           <ResultContainer>
             <ResultButton onPress={() => setDatePickerVisibility(true)}>
               <ResultText>
@@ -409,6 +390,26 @@ const TitleInput = styled.TextInput`
   margin-bottom: 16px;
 `;
 
+const PlayerContainer = styled.View`
+  flex-direction: row;
+  padding: 16px;
+  border: 1px solid ${colors.border};
+  border-radius: 16px;
+  margin-bottom: 16px;
+  justify-content: space-between;
+  align-items: center;
+`;
+
+const PlayerText = styled.Text`
+  font-size: ${fonts.sizes.small};
+  font-weight: ${fonts.weights.bold};
+  color: #b4b4b4;
+`;
+
+const PlayerButton = styled.TouchableOpacity`
+  flex-direction: row;
+`;
+
 const ResultContainer = styled.View`
   border: 1px solid ${colors.border};
   border-radius: 16px;
@@ -524,4 +525,4 @@ const OptionButton = styled.TouchableOpacity`
   padding: 2px 8px;
 `;
 
-export default ModifyBlog;
+export default ModifyMvp;
