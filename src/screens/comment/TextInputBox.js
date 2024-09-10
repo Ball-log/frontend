@@ -2,27 +2,34 @@ import React from 'react';
 import styled from 'styled-components/native';
 import { Feather } from "@expo/vector-icons";
 
-const ReplyInputBox = ({ onSubmit, value, onChange, onCancel, mode }) => {
+const TextInputBox = ({ 
+  onSubmit, 
+  value, 
+  onChange, 
+  onCancel, 
+  mode,
+}) => {
   return (
     <Wrapper>
         <InputWrapper>
         <Input
             placeholder={
-                mode === 'postReply' ? "답글을 입력해주세요" : 
-                mode === 'patchReply' ? "답글을 수정해주세요" : 
-                ""
+              mode === 'patchComment' ? "댓글을 수정해주세요" :
+              mode === 'postReply' ? "답글을 입력해주세요" : 
+              mode === 'patchReply' ? "답글을 수정해주세요" : 
+              ""
             }
             placeholderTextColor="#B5B5B5"
             multiline
             value={value}
-            onChangeText={onChange}
+            onChangeText={text => onChange(text)}
         />
         <ActionsWrapper>
             <CancelButton onPress={onCancel}>
-            <CancelText>취소</CancelText>
+              <CancelText>취소</CancelText>
             </CancelButton>
             <SubmitButton onPress={onSubmit}>
-            <Feather name="send" size={18} color="#C51E3A" />
+              <Feather name="send" size={18} color="#C51E3A" />
             </SubmitButton>
         </ActionsWrapper>
         </InputWrapper>
@@ -42,14 +49,15 @@ const InputWrapper = styled.View`
   padding: 10px;
   margin-top: 10px;
   margin-bottom: 10px;
-  margin-right: 10px;
-  margin-left: 45px;
+  margin-right: 25px;
+  margin-left: 25px;
   height: 40px;
 `;
 
 const Input = styled.TextInput`
   flex: 1;
   font-family: "Inter-Regular";
+  font-size: 12px;
   padding: 1px 3px;
 `;
 
@@ -68,4 +76,4 @@ const CancelText = styled.Text`
 
 const SubmitButton = styled.TouchableOpacity``;
 
-export default ReplyInputBox;
+export default TextInputBox;

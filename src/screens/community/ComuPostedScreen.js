@@ -1,5 +1,5 @@
 //ComuPostedScreen.js
-import React, {useState, useContext, useMemo, useRef, useEffect} from 'react';
+import React, {useState, useContext, useEffect} from 'react';
 import styled from 'styled-components/native';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import { Ionicons, AntDesign, MaterialCommunityIcons, Feather } from '@expo/vector-icons';
@@ -12,18 +12,15 @@ export default function ComuPostedScreen() {
   const navigation = useNavigation();
   const { post_like_context, community_context, postData, comment_context, reply_context } = useContext(Context);
   const [selectedType, setSelectedType] = useState(type);
-  const [showModal, setShowModal] = useState(false);
   const {post_id, type} = route.params;
 
   const [newText, setNewText] = useState("");
   const [replyText, setReplyText] = useState("");
   const [selectedTextId, setSelectedTextId] = useState(null);
   const [mode, setMode] = useState("postComment");
+  const [showCommentEditBox, setShowCommentEditBox] = useState(null);
   const [showReplyInputBox, setShowReplyInputBox] = useState(null);
-
-  const sortedComments = postData.comment_list?.sort((a, b) => {
-    return new Date(b.created_at) - new Date(a.created_at);
-  });
+  const [showReplyEditBox, setShowReplyEditBox] = useState(null);
 
   useEffect(() => {
     const setPostData = async () => {
@@ -109,6 +106,7 @@ export default function ComuPostedScreen() {
       "body": newText,
     }
     setNewText("")
+    setShowCommentEditBox(null);
     setMode("postComment")
     await comment_context.patch(req);
     await community_context.get(postData.post_id)
@@ -160,7 +158,7 @@ export default function ComuPostedScreen() {
       "body": replyText,
     }
     setReplyText("");
-    setShowReplyInputBox(null);
+    setShowReplyEditBox(null);
     setMode("postComment");
     await reply_context.patch(req);
     await community_context.get(postData.post_id);
@@ -181,6 +179,15 @@ export default function ComuPostedScreen() {
     }
   };
 
+  const handleCancel = () => {
+    setMode("postComment");
+    setNewText("");
+    setReplyText("");
+    setShowCommentEditBox(null);
+    setShowReplyInputBox(null);
+    setShowReplyEditBox(null);
+  };
+
   return (
     <Wrapper>
 
@@ -197,7 +204,7 @@ export default function ComuPostedScreen() {
         <ComuPostedBox>
           <WriterInfoBox>
             <WriterNameWrapper>
-              <UserImage source={{uri: postData.user_icon_url}} />
+              <UserImage source={{ uri: Array.isArray(postData.user_icon_url) ? postData.user_icon_url[0] : postData.user_icon_url }} />
               <WriterName>{postData.user_name || '사용자'}</WriterName>
             </WriterNameWrapper>
             <DateTime>{`${postData.created_at.split(" ")[0]} | ${postData.created_at.split(" ")[1]}`}</DateTime>
@@ -219,7 +226,7 @@ export default function ComuPostedScreen() {
           {postData.img_urls.map((url, index) => (
             <PostImage 
               key={`${url}url`} 
-              source={{uri: url}} 
+              source={{ uri: typeof url === 'string' ? url : url[0] }}
               isFirst={index === 0}
               isLast={index === postData.img_urls.length - 1}
             />
@@ -266,7 +273,11 @@ export default function ComuPostedScreen() {
         mode={mode}
         newText={newText}
         setNewText={setNewText}
+
+        showCommentEditBox={showCommentEditBox}
         showReplyInputBox={showReplyInputBox}
+        showReplyEditBox={showReplyEditBox}
+
         handlePostComment={handlePostComment}
         handlePatchComment={handlePatchComment}
       />
@@ -274,21 +285,35 @@ export default function ComuPostedScreen() {
       <CommentList
         postData={{
           ...postData,
-          comment_list: postData.comment_list ? postData.comment_list.sort((a, b) => new Date(b.created_at) - new Date(a.created_at)) : [], // 날짜 기준으로 최신순 정렬
+          comment_list: postData.comment_list ? 
+          [...postData.comment_list].sort((a, b) => new Date(a.created_at) - new Date(b.created_at)).reverse() : 
+          [],
         }}
         mode={mode}
+        setMode={setMode}
+
+        newText={newText}
+        setNewText={setNewText}
         replyText={replyText}
         setReplyText={setReplyText}
         selectedTextId={selectedTextId}
         setSelectedTextId={setSelectedTextId}
-        setMode={setMode}
+
+        showCommentEditBox={showCommentEditBox}
+        setShowCommentEditBox={setShowCommentEditBox}
         showReplyInputBox={showReplyInputBox}
         setShowReplyInputBox={setShowReplyInputBox}
+        showReplyEditBox={showReplyEditBox}
+        setShowReplyEditBox={setShowReplyEditBox}
+
+        handlePatchComment={handlePatchComment}
         handlePostReply={handlePostReply}
         handlePatchReply={handlePatchReply}
         handleDeleteComment={handleDeleteComment}
         handleDeleteReply={handleDeleteReply}
         getRepliesForComment={getRepliesForComment}
+
+        onCancel={handleCancel}
       />
     </Wrapper>
   )
@@ -345,6 +370,7 @@ const WriterInfoBox = styled.View`
 const WriterNameWrapper = styled.View`
   flex-direction: row;
   align-items: center;
+  gap: 10px;
 `;
 
 const WriterName = styled.Text`
