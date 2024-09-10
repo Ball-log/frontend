@@ -12,11 +12,11 @@ import CommunityScreen from "../screens/community/CommunityScreen";
 import ComuWriteScreen from "../screens/community/ComuWriteScreen";
 import ComuPostedScreen from "../screens/community/ComuPostedScreen";
 import NotificationScreen from "../screens/NotificationScreen";
-import CheckBlog from "../screens/CheckBlogScreen";
-import CheckMVP from "../screens/CheckMvpScreen";
-import PostScreen from "../screens/PostScreen";
+import CheckBlog from "../screens/board/CheckBlogScreen";
+import CheckMVP from "../screens/board/CheckMvpScreen";
+import PostScreen from "../screens/board/PostScreen";
 import Comment from "../screens/comment/CommentScreen";
-import Modify from "../screens/ModifyScreen";
+import Modify from "../screens/board/ModifyScreen";
 
 const Stack = createStackNavigator();
 

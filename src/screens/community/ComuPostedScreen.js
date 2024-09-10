@@ -215,6 +215,7 @@ export default function ComuPostedScreen() {
             hasImages={postData.img_urls.length > 0}
             showsHorizontalScrollIndicator={false}
           >
+            {console.log(postData)}
           {postData.img_urls.map((url, index) => (
             <PostImage 
               key={`${url}url`} 

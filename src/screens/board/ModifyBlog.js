@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import styled from "styled-components/native";
-import { colors, fonts } from "../global";
+import { colors, fonts } from "../../global";
 import {
   AntDesign,
   FontAwesome5,
@@ -17,23 +17,83 @@ import {
   ScrollView,
   Keyboard,
   TouchableWithoutFeedback,
+  Alert,
 } from "react-native";
+import axios from "axios";
+import { API_TOKEN } from "@env";
+import { useNavigation, useRoute } from "@react-navigation/native";
 
-const MVPScreen = ({ onDataChange }) => {
-  const [playerId, setPlayerId] = useState(0);
-  const [playerRecord, setPlayerRecord] = useState("");
+const ModifyBlog = () => {
+  const route = useRoute();
+  const navigation = useNavigation();
+  const { post_id } = route.params || {}; // 안전하게 접근하기 위해 디폴트 객체 사용
+  const [title, setTitle] = useState("");
+  const [content, setContent] = useState("");
   const [gameDate, setGameDate] = useState(null);
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
   const [images, setImages] = useState([]);
-  const [playerImage, setPlayerImage] = useState(null); // 선수 이미지 상태 추가
   const [showTextOptions, setShowTextOptions] = useState(false);
   const [showLineSpacingOptions, setShowLineSpacingOptions] = useState(false);
   const [showColorOptions, setShowColorOptions] = useState(false);
-  const [showSizeOptions, setShowSizeOptions] = useState(false); // 추가된 상태
-  const [textStyle, setTextStyle] = useState({});
+  const [showSizeOptions, setShowSizeOptions] = useState(false);
   const [textAlign, setTextAlign] = useState("left");
-  const [textColor, setTextColor] = useState("#000000");
-  const [textSize, setTextSize] = useState(13);
+  const [textColor, setTextColor] = useState(colors.text);
+  const [textSize, setTextSize] = useState(fonts.sizes.small);
+
+  useEffect(() => {
+    if (post_id) {
+      const fetchBlogData = async () => {
+        try {
+          const response = await axios.get(
+            `https://api.ballog.store/board/post/${post_id}`,
+            {
+              headers: {
+                Authorization: `Bearer ${API_TOKEN}`,
+                "Content-Type": "application/json",
+                Accept: "application/json",
+              },
+            }
+          );
+          const data = response.data.result;
+          setTitle(data.title);
+          setContent(data.body);
+          setGameDate(data.game_date ? new Date(data.game_date) : null);
+          setImages(data.images || []);
+        } catch (error) {
+          console.error("Error fetching blog data:", error);
+          Alert.alert("Error", "Failed to fetch blog data.");
+        }
+      };
+
+      fetchBlogData();
+    }
+  }, [post_id]);
+
+  const handleSave = async () => {
+    try {
+      await axios.put(
+        `https://api.ballog.store/board/post/${post_id}`,
+        {
+          title,
+          body: content,
+          img_urls: images, // 수정된 내용: `images`를 `img_urls`로 전송
+          game_date: gameDate ? gameDate.toISOString() : null,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${API_TOKEN}`,
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+        }
+      );
+      Alert.alert("Success", "Blog post updated successfully.");
+      navigation.goBack();
+    } catch (error) {
+      console.error("Error updating blog post:", error);
+      Alert.alert("Error", "Failed to update blog post.");
+    }
+  };
 
   useEffect(() => {
     (async () => {
@@ -52,36 +112,12 @@ const MVPScreen = ({ onDataChange }) => {
     setDatePickerVisibility(false);
   };
 
-  const pickPlayerImage = async () => {
-    console.log("pickPlayerImage function called");
-    try {
-      let result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
-        allowsEditing: true,
-        aspect: [4, 3],
-        quality: 1,
-      });
-
-      if (!result.canceled) {
-        const uri = result.assets ? result.assets[0].uri : result.uri;
-        setPlayerImage(uri);
-        setPlayerContent((prevContent) => `${prevContent}\n![Image](${uri})`);
-      }
-    } catch (error) {
-      console.error("Error picking player image:", error);
-    }
-  };
-
-  useEffect(() => {
-    console.log("Player images:", images); // 상태 확인용 로그
-  }, [images]);
-
   const pickImages = async () => {
     console.log("pickImages function called");
     try {
       let result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
-        allowsMultipleSelection: true, // 여러 이미지 선택 허용
+        allowsMultipleSelection: true,
         quality: 1,
       });
 
@@ -94,51 +130,46 @@ const MVPScreen = ({ onDataChange }) => {
     }
   };
 
-  useEffect(() => {
-    console.log("Current images:", images); // 상태 확인용 로그
-  }, [images]);
-
   const handleRemoveImage = (uri) => {
     setImages((prevImages) => prevImages.filter((image) => image !== uri));
-  };
-
-  const handleRemovePlayerImage = () => {
-    setPlayerImage(null);
   };
 
   const toggleTextOptions = () => {
     setShowTextOptions(!showTextOptions);
     setShowLineSpacingOptions(false);
     setShowColorOptions(false);
-    setShowSizeOptions(false); // 사이즈 옵션 숨기기
+    setShowSizeOptions(false);
   };
 
   const toggleLineSpacingOptions = () => {
     setShowLineSpacingOptions(!showLineSpacingOptions);
     setShowTextOptions(false);
     setShowColorOptions(false);
-    setShowSizeOptions(false); // 사이즈 옵션 숨기기
+    setShowSizeOptions(false);
   };
 
   const toggleColorOptions = () => {
     setShowColorOptions(!showColorOptions);
     setShowTextOptions(false);
     setShowLineSpacingOptions(false);
-    setShowSizeOptions(false); // 사이즈 옵션 숨기기
+    setShowSizeOptions(false);
   };
 
   const toggleSizeOptions = () => {
     setShowSizeOptions(!showSizeOptions);
     setShowTextOptions(false);
     setShowLineSpacingOptions(false);
-    setShowColorOptions(false); // 색상 옵션 숨기기
+    setShowColorOptions(false);
   };
 
   const applyStyle = (style) => {
-    setTextStyle((prevStyle) => ({
-      ...prevStyle,
-      [style]: prevStyle[style] ? undefined : style,
-    }));
+    if (style === "bold") {
+      setContent((prevContent) => `${prevContent}**Bold Text**`);
+    } else if (style === "italic") {
+      setContent((prevContent) => `${prevContent}*Italic Text*`);
+    } else if (style === "underline") {
+      setContent((prevContent) => `${prevContent}<u>Underlined Text</u>`);
+    }
   };
 
   const applyAlign = (alignment) => {
@@ -162,47 +193,22 @@ const MVPScreen = ({ onDataChange }) => {
   };
 
   const sizeOptions = {
-    h1: 30,
-    h2: 25,
-    h3: 20,
-    h4: 15,
-    h5: 10,
+    h1: "30px",
+    h2: "25px",
+    h3: "20px",
+    h4: "15px",
+    h5: "10px",
   };
-
-  useEffect(() => {
-    onDataChange({
-      playerId,
-      playerRecord,
-      images,
-    });
-  }, [playerId, playerRecord, images]);
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
         <ContentContainer>
           <TitleInput
-            placeholder="선수 이름을 입력하세요"
-            value={playerId}
-            onChangeText={setPlayerId}
+            placeholder="수정할 페이지!!"
+            value={title}
+            onChangeText={setTitle}
           />
-          <PlayerContainer>
-            {playerImage ? (
-              <>
-                <ImagePreview source={{ uri: playerImage }} />
-                <RemoveImageButton onPress={handleRemovePlayerImage}>
-                  <AntDesign name="delete" size={24} color={colors.icon} />
-                </RemoveImageButton>
-              </>
-            ) : (
-              <>
-                <PlayerText>선수 사진을 업로드 하세요.</PlayerText>
-                <PlayerButton onPress={pickPlayerImage}>
-                  <Feather name="camera" size={24} color={colors.icon} />
-                </PlayerButton>
-              </>
-            )}
-          </PlayerContainer>
           <ResultContainer>
             <ResultButton onPress={() => setDatePickerVisibility(true)}>
               <ResultText>
@@ -215,18 +221,11 @@ const MVPScreen = ({ onDataChange }) => {
           </ResultContainer>
           <ContentInput
             placeholder="오늘의 기록을 입력하세요."
-            value={playerRecord}
-            onChangeText={setPlayerRecord}
+            value={content}
+            onChangeText={setContent}
             multiline
             color={textColor}
-            style={{
-              textAlign,
-              fontSize: textSize,
-              color: textColor,
-              fontWeight: textStyle.bold ? "bold" : "normal",
-              fontStyle: textStyle.italic ? "italic" : "normal",
-              textDecorationLine: textStyle.underline ? "underline" : "none",
-            }} // 적용된 글자색 및 크기
+            style={{ textAlign, color: textColor, fontSize: textSize }} // 적용된 글자색 및 크기
           />
           <DateTimePickerModal
             isVisible={isDatePickerVisible}
@@ -369,7 +368,7 @@ const MVPScreen = ({ onDataChange }) => {
                       key={sizeName}
                       onPress={() => applySize(sizeOptions[sizeName])}
                     >
-                      <Text style={{ fontSize: 14 }}>{sizeName}</Text>
+                      <Text style={{ fontSize: "14px" }}>{sizeName}</Text>
                     </OptionButton>
                   ))}
                 </BorderBox>
@@ -408,26 +407,6 @@ const TitleInput = styled.TextInput`
   border: 1px solid ${colors.border};
   border-radius: 32px;
   margin-bottom: 16px;
-`;
-
-const PlayerContainer = styled.View`
-  flex-direction: row;
-  padding: 16px;
-  border: 1px solid ${colors.border};
-  border-radius: 16px;
-  margin-bottom: 16px;
-  justify-content: space-between;
-  align-items: center;
-`;
-
-const PlayerText = styled.Text`
-  font-size: ${fonts.sizes.small};
-  font-weight: ${fonts.weights.bold};
-  color: #b4b4b4;
-`;
-
-const PlayerButton = styled.TouchableOpacity`
-  flex-direction: row;
 `;
 
 const ResultContainer = styled.View`
@@ -545,4 +524,4 @@ const OptionButton = styled.TouchableOpacity`
   padding: 2px 8px;
 `;
 
-export default MVPScreen;
+export default ModifyBlog;

@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
 import styled from "styled-components/native";
-import { colors, fonts } from "../global";
+import { colors, fonts } from "../../global";
 import RNPickerSelect from "react-native-picker-select";
 import { AntDesign } from "@expo/vector-icons";
 import BlogScreen from "./BlogScreen";
 import MvpScreen from "./MvpScreen";
-import { getPresignedUrl, uploadFileToS3 } from "../components/S3";
+import { getPresignedUrl, uploadFileToS3 } from "../../components/S3";
 import {
   TouchableWithoutFeedback,
   Keyboard,
@@ -16,7 +16,7 @@ import {
 import { useNavigation } from "@react-navigation/native";
 import axios from "axios";
 import { API_TOKEN } from "@env";
-import { store } from "../utils/secureStore";
+import { store } from "../../utils/secureStore";
 
 const PostScreen = () => {
   

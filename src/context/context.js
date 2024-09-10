@@ -5,6 +5,7 @@ import { comment_api } from '../api/api-utils/comment.api';
 import { reply_api } from '../api/api-utils/reply.api';
 import { post_like_api } from '../api/api-utils/post_like.api';
 import { myPage_api } from '../api/myPage/myPage.api';
+import { board_api } from '../api/board/board.api';
 
 const Context = React.createContext();
 const ContextProvider = ({children}) => {
@@ -13,6 +14,12 @@ const ContextProvider = ({children}) => {
     const [postList, setPostList] = useState([{data: {}}]);
     const [myPage, setMyPage] = useState({user_background_img: null})
     const [postByDate, setPostByDate] = useState()
+    const [postBlog, setPostBlog] = useState({
+        user_icon_url: null,
+        match_info: {
+            match_date: "2017-01-01 11:11:00"
+        }
+    })
     
     const community_context = {
         get: async (post_id) => {
@@ -55,6 +62,38 @@ const ContextProvider = ({children}) => {
                 }
             } catch (error) {
                 community_error.get_list(error);
+            }
+        }
+    }
+    const board_context = {
+        get: async (post_id) => {
+            try {
+                const response = await board_api.get(post_id);
+                setPostData(response);
+            } catch (error) {
+                //community_error.get(error);
+            }
+        },
+        post: async (req) => {
+            
+            try {
+                await board_api.post(req);
+            } catch (error) {
+                //community_error.post(error);
+            }
+        },
+        patch: async (post_id, req) => {
+            try {
+                await board_api.patch(post_id, req);
+            } catch (error) {
+                //community_error.patch(error);
+            }
+        },
+        delete: async (post_id) => {
+            try {
+                await board_api.delete(post_id);
+            } catch (error) {
+                //community_error.delete(error);
             }
         }
     };
@@ -156,14 +195,16 @@ const ContextProvider = ({children}) => {
     return (
         <Context.Provider value={{ 
             post_like_context, 
-            community_context, 
+            community_context,
+            board_context, 
             reply_context, 
             comment_context,
             myPage_context, 
             postData, 
             postList,
             myPage,
-            postByDate }}>
+            postByDate,
+            postBlog }}>
             {children}
         </Context.Provider>
     );

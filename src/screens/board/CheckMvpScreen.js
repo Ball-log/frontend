@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import styled from "styled-components/native";
 import {
   TouchableWithoutFeedback,
   Keyboard,
   ScrollView,
   Alert,
+  Image
 } from "react-native";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import {
@@ -13,21 +14,21 @@ import {
   Feather,
   AntDesign,
 } from "@expo/vector-icons";
-import { colors, fonts } from "../global";
-import axios from "axios";
-import { API_TOKEN } from "@env";
+import { colors, fonts } from "../../global";
+import { Context } from '../../context/context';
 
 const CheckMVP = () => {
   const [showButtons, setShowButtons] = useState(false);
-  const [mvpData, setMvpData] = useState(null);
-  const [likeCount, setLikeCount] = useState(mvpData ? mvpData.like_count : 0);
+  const { board_context, myPage, postByDate, postData } = useContext(Context);
 
-  const createdDate = mvpData
-    ? mvpData.match_info.match_date.split("T")[0]
+  console.log("!!!", postData)
+
+  const createdDate = postData
+    ? postData.match_info.match_date.split("T")[0]
     : "Loading...";
 
-  const gameDate = mvpData
-    ? new Date(mvpData.created_at).toLocaleDateString("en-US", {
+  const gameDate = postData
+    ? new Date(postData.created_at).toLocaleDateString("en-US", {
         month: "numeric",
         day: "numeric",
       })
@@ -36,15 +37,6 @@ const CheckMVP = () => {
   const navigation = useNavigation();
   const route = useRoute();
 
-  const apiUrl = "https://api.ballog.store";
-  const { post_id_mvp } = route.params;
-
-  const post_id = post_id_mvp;
-
-  const handleLikeCount = () => {
-    setLikeCount((prevLikeCount) => prevLikeCount + 1);
-  };
-
   const handleBackPress = () => {
     navigation.goBack();
   };
@@ -52,56 +44,6 @@ const CheckMVP = () => {
   const handleSettingsPress = () => {
     setShowButtons((prev) => !prev);
   };
-
-  useEffect(() => {
-    console.log(`Fetching data from ${apiUrl}/board/post/${post_id}`);
-    console.log("API_TOKEN:", API_TOKEN);
-    axios
-      .get(`${apiUrl}/board/post/${post_id}`, {
-        headers: {
-          Authorization: `Bearer ${API_TOKEN}`,
-          "Content-Type": "application/json",
-          Accept: "application/json", // Ensure server responds with JSON
-        },
-      })
-      .then((response) => {
-        console.log("API Response Status:", response.status);
-        console.log("API Response Headers:", response.headers);
-        console.log("API Response Data:", response.data);
-
-        if (response.data.result === null || response.data.deleted) {
-          // 게시글이 삭제된 상태라면
-          Alert.alert("삭제된 게시글", "이 게시글은 삭제되었습니다.", [
-            { text: "확인", onPress: () => navigation.goBack() },
-          ]);
-        } else {
-          setMvpData(response.data.result); // Save response data to state
-        }
-      })
-      .catch((error) => {
-        if (error.response) {
-          console.error("API Error Response Status:", error.response.status);
-          console.error("API Error Response Headers:", error.response.headers);
-          console.error("API Error Response Data:", error.response.data);
-
-          if (error.response.status === 404) {
-            // 404 에러(삭제된 게시글일 가능성 있음)
-            Alert.alert("삭제된 게시글", "이 게시글은 삭제되었습니다.", [
-              { text: "확인", onPress: () => navigation.goBack() },
-            ]);
-          } else {
-            Alert.alert("오류", "게시글을 불러오는 데 문제가 발생했습니다.", [
-              { text: "확인", onPress: () => navigation.goBack() },
-            ]);
-          }
-        } else if (error.request) {
-          console.error("API Error Request:", error.request);
-        } else {
-          console.error("API Error Message:", error.message);
-        }
-        console.error("API Error Config:", error.config);
-      });
-  }, [post_id_mvp]);
 
   const handleDeletePress = () => {
     Alert.alert(
@@ -169,15 +111,15 @@ const CheckMVP = () => {
           <Ionicons name="chevron-back" size={24} color="black" />
         </BackButton>
         <UserWrapper>
-          <FileIcon source={require("../assets/Order.png")} />
-          <UserName>{mvpData ? mvpData.user_name : "Loading..."}</UserName>
+          <FileIcon source={require("../../assets/Order.png")} />
+          <UserName>{postData ? postData.user_name : "Loading..."}</UserName>
         </UserWrapper>
       </UserHeader>
       <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
         <Container>
           <SettingWrapper>
             <SettingButton onPress={handleSettingsPress}>
-              <SettingIcon source={require("../assets/Settings.png")} />
+              <SettingIcon source={require("../../assets/Settings.png")} />
             </SettingButton>
           </SettingWrapper>
           {showButtons && (
@@ -202,22 +144,23 @@ const CheckMVP = () => {
               <UserType>오늘의 MVP</UserType>
             </UserTypeWrapper>
             <DateTime>{createdDate}</DateTime>
-            <MVPImage source={require("../assets/MVP.png")} />
+            {console.log("uri, ", postData.player_profile_img)}
+            <MVPImage source={{uri: postData.player_profile_img }} />
           </TitleWrapper>
           <ScoreWrapper>
             <ScoreDate>
               <DateText>{gameDate} 경기</DateText>
             </ScoreDate>
-            <ResultText>4타수 2안타 1홈런 3타점</ResultText>
+            <ResultText>{postData.player_record}</ResultText>
           </ScoreWrapper>
           <PostFooter>
             <IconWrapper>
-              <LikeIcon onPress={handleLikeCount}>
+              <LikeIcon onPress={"tedt"}>
                 <AntDesign name="hearto" size={21} color="#E05936" />
               </LikeIcon>
-              <LikeCount>{likeCount}</LikeCount>
+              <LikeCount>{postData.like_count}</LikeCount>
               <ChatIcon
-                onPress={() => navigation.navigate("Comment", { post_id_mvp })}
+                onPress={() => navigation.navigate("Comment")}
               >
                 <MaterialCommunityIcons
                   name="message-reply-outline"
@@ -226,11 +169,11 @@ const CheckMVP = () => {
                 />
               </ChatIcon>
               <ChatCount>
-                {mvpData ? mvpData.comment_list.length : "Loading..."}
+                {postData ? postData.comment_list.length : "Loading..."}
               </ChatCount>
             </IconWrapper>
             <BookmarkButton>
-              <BookmarkImage source={require("../assets/Bookmark.png")} />
+              <BookmarkImage source={require("../../assets/Bookmark.png")} />
             </BookmarkButton>
           </PostFooter>
         </Container>
@@ -238,7 +181,7 @@ const CheckMVP = () => {
 
       <CommentsFooter>
         <InputBoxWrapper>
-          <UserImage source={require("../assets/Profile.png")} />
+          <UserImage source={require("../../assets/Profile.png")} />
           <CommentInputBox
             placeholder="댓글을 입력해주세요"
             placeholderTextColor={"#B5B5B5"}
@@ -361,6 +304,8 @@ const DateTime = styled.Text`
 
 const MVPImage = styled.Image`
   margin-bottom: 20px;
+  width: 100px; /* 원하는 너비로 설정 */
+  height: 100px; /* 원하는 높이로 설정 */
 `;
 
 const ScoreWrapper = styled.View`

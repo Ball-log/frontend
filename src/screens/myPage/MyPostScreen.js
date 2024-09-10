@@ -21,12 +21,11 @@ import ModalComponent from "../../components/Modal";
 import { Context } from '../../context/context';
 
 const MyPostScreen = () => {
-  const { myPage_context, myPage, postByDate } = useContext(Context);
+  const { board_context, myPage, postByDate } = useContext(Context);
   const [miniModalVisible1, setMiniModalVisible1] = useState(false);
   const [miniModalVisible2, setMiniModalVisible2] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const navigation = useNavigation();
-  console.log(postByDate)
   const navigateBack = () => {
     navigation.goBack();
   };
@@ -53,6 +52,16 @@ const MyPostScreen = () => {
     setModalVisible(false);
   };
 
+  const handlePostPress = async (post_id, type) => {
+    await board_context.get(post_id)
+    if (type === 'blog') {
+      navigation.navigate("CheckBlog")
+    } else {
+      navigation.navigate("CheckMVP")
+    }
+    
+  }
+
   return (
     <View style={styles.container}>
       <View style={styles.bar}>
@@ -68,7 +77,7 @@ const MyPostScreen = () => {
         <View style={styles.BlogContainer} key={blog.blog_id}>
           <TouchableOpacity
             style={styles.BlogButton}
-            onPress={() => navigation.navigate("CheckBlog")}
+            onPress={() => handlePostPress(blog.blog_id, "blog")}
           >
             <View style={styles.Tab}>
               <Text style={styles.TabText}>BLOG</Text>
@@ -125,7 +134,7 @@ const MyPostScreen = () => {
         <View style={styles.MvpContainer} key={mvp.mvp_id}>
           <TouchableOpacity
             style={styles.BlogButton}
-            onPress={() => navigation.navigate("CheckMVP")}
+            onPress={() => handlePostPress(mvp.mvp_id, "mvp")}
           >
             <View style={styles.Tab}>
               <Text style={styles.TabText}>MVP</Text>

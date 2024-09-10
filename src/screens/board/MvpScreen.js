@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import styled from "styled-components/native";
-import { colors, fonts } from "../global";
+import { colors, fonts } from "../../global";
 import {
   AntDesign,
   FontAwesome5,
@@ -19,21 +19,21 @@ import {
   TouchableWithoutFeedback,
 } from "react-native";
 
-const ModifyMvp = () => {
-  const [title, setTitle] = useState("");
-  const [content, setContent] = useState("");
-  const [playerContent, setPlayerContent] = useState("");
+const MVPScreen = ({ onDataChange }) => {
+  const [playerId, setPlayerId] = useState(0);
+  const [playerRecord, setPlayerRecord] = useState("");
   const [gameDate, setGameDate] = useState(null);
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
-  const [images, setImages] = useState([]); // 여러 이미지를 저장할 배열 상태
+  const [images, setImages] = useState([]);
   const [playerImage, setPlayerImage] = useState(null); // 선수 이미지 상태 추가
   const [showTextOptions, setShowTextOptions] = useState(false);
   const [showLineSpacingOptions, setShowLineSpacingOptions] = useState(false);
   const [showColorOptions, setShowColorOptions] = useState(false);
   const [showSizeOptions, setShowSizeOptions] = useState(false); // 추가된 상태
+  const [textStyle, setTextStyle] = useState({});
   const [textAlign, setTextAlign] = useState("left");
-  const [textColor, setTextColor] = useState(colors.text);
-  const [textSize, setTextSize] = useState(fonts.sizes.small); // 기본 글자 크기
+  const [textColor, setTextColor] = useState("#000000");
+  const [textSize, setTextSize] = useState(13);
 
   useEffect(() => {
     (async () => {
@@ -72,6 +72,10 @@ const ModifyMvp = () => {
     }
   };
 
+  useEffect(() => {
+    console.log("Player images:", images); // 상태 확인용 로그
+  }, [images]);
+
   const pickImages = async () => {
     console.log("pickImages function called");
     try {
@@ -89,6 +93,10 @@ const ModifyMvp = () => {
       console.error("Error picking images:", error);
     }
   };
+
+  useEffect(() => {
+    console.log("Current images:", images); // 상태 확인용 로그
+  }, [images]);
 
   const handleRemoveImage = (uri) => {
     setImages((prevImages) => prevImages.filter((image) => image !== uri));
@@ -127,13 +135,10 @@ const ModifyMvp = () => {
   };
 
   const applyStyle = (style) => {
-    if (style === "bold") {
-      setContent((prevContent) => `${prevContent}**Bold Text**`);
-    } else if (style === "italic") {
-      setContent((prevContent) => `${prevContent}*Italic Text*`);
-    } else if (style === "underline") {
-      setContent((prevContent) => `${prevContent}<u>Underlined Text</u>`);
-    }
+    setTextStyle((prevStyle) => ({
+      ...prevStyle,
+      [style]: prevStyle[style] ? undefined : style,
+    }));
   };
 
   const applyAlign = (alignment) => {
@@ -157,21 +162,29 @@ const ModifyMvp = () => {
   };
 
   const sizeOptions = {
-    h1: "30px",
-    h2: "25px",
-    h3: "20px",
-    h4: "15px",
-    h5: "10px",
+    h1: 30,
+    h2: 25,
+    h3: 20,
+    h4: 15,
+    h5: 10,
   };
+
+  useEffect(() => {
+    onDataChange({
+      playerId,
+      playerRecord,
+      images,
+    });
+  }, [playerId, playerRecord, images]);
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
         <ContentContainer>
           <TitleInput
-            placeholder="수정할 페이지!!"
-            value={title}
-            onChangeText={setTitle}
+            placeholder="선수 이름을 입력하세요"
+            value={playerId}
+            onChangeText={setPlayerId}
           />
           <PlayerContainer>
             {playerImage ? (
@@ -202,11 +215,18 @@ const ModifyMvp = () => {
           </ResultContainer>
           <ContentInput
             placeholder="오늘의 기록을 입력하세요."
-            value={content}
-            onChangeText={setContent}
+            value={playerRecord}
+            onChangeText={setPlayerRecord}
             multiline
             color={textColor}
-            style={{ textAlign, color: textColor, fontSize: textSize }} // 적용된 글자색 및 크기
+            style={{
+              textAlign,
+              fontSize: textSize,
+              color: textColor,
+              fontWeight: textStyle.bold ? "bold" : "normal",
+              fontStyle: textStyle.italic ? "italic" : "normal",
+              textDecorationLine: textStyle.underline ? "underline" : "none",
+            }} // 적용된 글자색 및 크기
           />
           <DateTimePickerModal
             isVisible={isDatePickerVisible}
@@ -349,7 +369,7 @@ const ModifyMvp = () => {
                       key={sizeName}
                       onPress={() => applySize(sizeOptions[sizeName])}
                     >
-                      <Text style={{ fontSize: "14px" }}>{sizeName}</Text>
+                      <Text style={{ fontSize: 14 }}>{sizeName}</Text>
                     </OptionButton>
                   ))}
                 </BorderBox>
@@ -525,4 +545,4 @@ const OptionButton = styled.TouchableOpacity`
   padding: 2px 8px;
 `;
 
-export default ModifyMvp;
+export default MVPScreen;

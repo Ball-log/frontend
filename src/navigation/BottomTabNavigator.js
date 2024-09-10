@@ -1,7 +1,7 @@
 import React from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import HomeScreen from "../screens/HomeScreen";
-import PostScreen from "../screens/PostScreen";
+import PostScreen from "../screens/board/PostScreen";
 import ClipsScreen from "../screens/ClipsScreen";
 import CommunityScreen from "../screens/community/CommunityScreen";
 import MyPageStackNavigator from "./MyPageStackNavigator";
