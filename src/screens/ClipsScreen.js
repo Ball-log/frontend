@@ -10,7 +10,7 @@ import React, { useState } from "react";
 import { View, Text, Button, Image, StyleSheet } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import { getPresignedUrl, uploadFileToS3 } from "../components/S3";
-import { API_TOKEN } from "@env";
+   
 
 const ClipsScreen = () => {
   const [image, setImage] = useState(null);

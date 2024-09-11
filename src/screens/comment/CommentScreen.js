@@ -14,7 +14,7 @@ import CommentList from "./CommentList";
 const CommentScreen = () => {
   const navigation = useNavigation();
   const route = useRoute();
-  const { comment_context, community_context, reply_context, postData } = useContext(Context);
+  const { comment_context, board_context, reply_context, postData } = useContext(Context);
   const [ type, setType ] = useState(route.params.type)
   const [newText, setNewText] = useState("");
   const [replyText, setReplyText] = useState("");
@@ -62,8 +62,7 @@ const CommentScreen = () => {
       }
       setNewText("")
       await comment_context.post(req);
-      await community_context.get(postData.post_id)
-      await community_context.get_list(type)
+      await board_context.get(postData.post_id)
       
     } catch (error) {
       console.error("Error submitting comment:", error);
@@ -80,7 +79,7 @@ const CommentScreen = () => {
     setShowCommentEditBox(null);
     setMode("postComment")
     await comment_context.patch(req);
-    await community_context.get(postData.post_id)
+    await board_context.get(postData.post_id)
   };
 
   const handleDeleteComment = async (post_id) => {
@@ -89,8 +88,7 @@ const CommentScreen = () => {
       "id": post_id
       }
       await comment_context.delete(req);
-      await community_context.get(postData.post_id)
-      await community_context.get_list(type)
+      await board_context.get(postData.post_id)
       setNewText("")
       setMode("postComment")
     } catch (error) {
@@ -111,8 +109,7 @@ const CommentScreen = () => {
       setReplyText("");
       setShowReplyInputBox(null);
       await reply_context.post(req);
-      await community_context.get(postData.post_id);
-      await community_context.get_list(type);
+      await board_context.get(postData.post_id);;
 
       setReplyText("");
       setShowReplyInputBox(null);
@@ -132,7 +129,7 @@ const CommentScreen = () => {
     setShowReplyEditBox(null);
     setMode("postComment");
     await reply_context.patch(req);
-    await community_context.get(postData.post_id);
+    await board_context.get(postData.post_id);
   };
 
   const handleDeleteReply = async (post_id) => {
@@ -141,8 +138,7 @@ const CommentScreen = () => {
       "id": post_id
       }
       await reply_context.delete(req);
-      await community_context.get(postData.post_id)
-      await community_context.get_list(type)
+      await board_context.get(postData.post_id)
       setNewText("")
       setMode("postComment")
     } catch (error) {

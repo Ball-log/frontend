@@ -238,9 +238,7 @@ export default function ComuPostedScreen() {
                 <AntDesign name={postData.has_liked ? "heart" : "hearto"} size={12} color="#E05936" />
               </LikeIcon>
               <LikeCount>{postData.like_count}</LikeCount>
-              <ChatIcon
-                onPress={() => navigation.navigate("Comment", {type:type} )}
-              >
+              <ChatIcon>
                 <MaterialCommunityIcons
                   name="message-reply-outline"
                   size={12}

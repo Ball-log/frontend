@@ -9,8 +9,7 @@ const LogoutScreen = ({route}) => {
   const [modalVisible, setModalVisible] = useState(false);
   const navigation = useNavigation();
   const { myPage_context, myPage, postByDate } = useContext(Context);
-  
-  console.log('myPage', myPage);
+
 
   const onPressHandler = () => {
     setModalVisible(true);

@@ -6,14 +6,11 @@ export const myPage_api = {
         return result.data.result;
     }, 
     get_post: async (date) => {
-        console.log("date in api:", date)
         const result = await api.get(`https://api.ballog.store/myPage/post?date=${date}`);
         return result.data.result;
     },
     patch_background_img: async (req) => {
-        console.log(req)
         const result = await api.patch("https://api.ballog.store/myPage/setting/backgroundImg", req);
-        console.log(result.data.result)
         return result.data.result;
     },
     get_teamSetting: async () => {
@@ -21,9 +18,7 @@ export const myPage_api = {
         return result.data.result;
     },
     patch_teamSetting: async (req) => {
-        
         const result = await api.patch("https://api.ballog.store/myPage/setting/teamSetting", req);
-        
         return result.data.result;
     }
 }

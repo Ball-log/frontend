@@ -23,6 +23,7 @@ const ContextProvider = ({children}) => {
     
     const community_context = {
         get: async (post_id) => {
+            console.log("in community context, post_id", post_id)
             try {
                 const response = await community_api.get(post_id);
                 setPostData(response.result);
@@ -67,6 +68,7 @@ const ContextProvider = ({children}) => {
     }
     const board_context = {
         get: async (post_id) => {
+            console.log("in board context, post_id", post_id)
             try {
                 const response = await board_api.get(post_id);
                 setPostData(response);
@@ -162,7 +164,6 @@ const ContextProvider = ({children}) => {
             }
         },
         get_post: async (date) => {
-            console.log("date in context:", date)
             try {
                 const result = await myPage_api.get_post(date);
                 setPostByDate(result)

@@ -20,7 +20,7 @@ import {
   Alert,
 } from "react-native";
 import axios from "axios";
-import { API_TOKEN } from "@env";
+   
 import { useNavigation, useRoute } from "@react-navigation/native";
 
 const ModifyBlog = () => {

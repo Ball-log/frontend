@@ -21,7 +21,7 @@ import { Context } from '../../context/context';
 const CheckBlog = () => {
   const { board_context, myPage, postByDate, postData } = useContext(Context);
   const [showButtons, setShowButtons] = useState(false);
-  console.log("!!!", postData)
+  console.log("in CheckBlogScreen, postData: ", postData)
   const createdDate = postData.match_info
     ? postData.match_info.match_date.split(" ")[0]
     : "Loading...";
@@ -201,7 +201,7 @@ const CheckBlog = () => {
             <AntDesign name="hearto" size={21} color="#E05936" />
           </LikeIcon>
           <LikeCount>{postData.like_count}</LikeCount>
-          <ChatIcon onPress={() => navigation.navigate("Comment", { post_id })}>
+          <ChatIcon onPress={() => navigation.navigate("Comment", { type:"blog" })}>
             <MaterialCommunityIcons
               name="message-reply-outline"
               size={21}

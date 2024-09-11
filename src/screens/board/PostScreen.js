@@ -15,7 +15,7 @@ import {
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import axios from "axios";
-import { API_TOKEN } from "@env";
+   
 import { store } from "../../utils/secureStore";
 
 const PostScreen = () => {

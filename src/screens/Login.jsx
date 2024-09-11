@@ -43,7 +43,6 @@ const Login = () => {
       const Authorization = response.headers.authorization;
       const refreshtoken = response.headers.refreshtoken;
       const user_id = response.headers.user_id;
-      console.log("Authorization: ", Authorization)
       await store.save('Authorization', Authorization);
       await store.save('refreshtoken', refreshtoken);
       await store.save('user_id', user_id);

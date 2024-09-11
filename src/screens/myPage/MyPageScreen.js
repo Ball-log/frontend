@@ -43,7 +43,6 @@ const MyPageScreen = () => {
 
   const onDayPress = async (day) => {
     const selectedDate = day.dateString;
-    console.log("selectedDate: ", selectedDate);
     const isRedDate = markedDates[selectedDate]
     if (isRedDate) {
       await myPage_context.get_post(selectedDate)
@@ -62,12 +61,8 @@ const MyPageScreen = () => {
     };
     return acc;
   }, {});
-  console.log('myPage', myPage);
-  console.log("Fetched markDates:", markedDates);
-  console.log('redDates[today]', redDates.includes(today));
 
   markedDates[today] = redDates.includes(today) ? { selected: true, selectedColor: "#E8A5B0" } : { selected: true, selectedColor: "#CDCDCD" };
-
 
   return (
     <View style={styles.container}>

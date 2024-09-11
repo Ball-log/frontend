@@ -53,7 +53,6 @@ const BlogScreen = ({ onDataChange }) => {
   };
 
   const pickImages = async () => {
-    console.log("pickImages function called");
     try {
       let result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.Images,

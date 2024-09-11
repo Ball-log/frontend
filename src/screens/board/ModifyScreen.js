@@ -13,7 +13,7 @@ import axios from "axios";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import BlogScreen from "./ModifyBlog"; // BlogScreen을 별도 파일로 분리
 import MvpScreen from "./ModifyMvp"; // MvpScreen을 별도 파일로 분리
-import { API_TOKEN } from "@env";
+   
 
 const ModifyScreen = () => {
   const [selectedValue, setSelectedValue] = useState("blog");

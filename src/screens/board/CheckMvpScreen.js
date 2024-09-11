@@ -21,8 +21,6 @@ const CheckMVP = () => {
   const [showButtons, setShowButtons] = useState(false);
   const { board_context, myPage, postByDate, postData } = useContext(Context);
 
-  console.log("!!!", postData)
-
   const createdDate = postData
     ? postData.match_info.match_date.split("T")[0]
     : "Loading...";
@@ -160,7 +158,7 @@ const CheckMVP = () => {
               </LikeIcon>
               <LikeCount>{postData.like_count}</LikeCount>
               <ChatIcon
-                onPress={() => navigation.navigate("Comment")}
+                onPress={() => navigation.navigate("Comment", {type: "mvp"})}
               >
                 <MaterialCommunityIcons
                   name="message-reply-outline"
@@ -169,7 +167,7 @@ const CheckMVP = () => {
                 />
               </ChatIcon>
               <ChatCount>
-                {postData ? postData.comment_list.length : "Loading..."}
+                {postData ? postData.comment_count : "Loading..."}
               </ChatCount>
             </IconWrapper>
             <BookmarkButton>
