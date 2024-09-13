@@ -265,27 +265,9 @@ export default function ComuPostedScreen() {
           </PostFooter>
           
         </ComuPostedBox>
-
-        <CommentInputBox
-          mode={mode}
-          newText={newText}
-          setNewText={setNewText}
-
-          showCommentEditBox={showCommentEditBox}
-          showReplyInputBox={showReplyInputBox}
-          showReplyEditBox={showReplyEditBox}
-
-          handlePostComment={handlePostComment}
-          handlePatchComment={handlePatchComment}
-        />
         
         <CommentList
-          postData={{
-            ...postData,
-            comment_list: postData.comment_list ? 
-            [...postData.comment_list].sort((a, b) => new Date(a.created_at) - new Date(b.created_at)).reverse() : 
-            [],
-          }}
+          postData={postData}
           mode={mode}
           setMode={setMode}
 
@@ -312,7 +294,20 @@ export default function ComuPostedScreen() {
 
           onCancel={handleCancel}
         />
+
       </LayoutBox>
+      <CommentInputBox
+        mode={mode}
+        newText={newText}
+        setNewText={setNewText}
+
+        showCommentEditBox={showCommentEditBox}
+        showReplyInputBox={showReplyInputBox}
+        showReplyEditBox={showReplyEditBox}
+
+        handlePostComment={handlePostComment}
+        handlePatchComment={handlePatchComment}
+      />
     </Wrapper>
   )
 }

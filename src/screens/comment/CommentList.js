@@ -161,7 +161,6 @@ const ScrollContainer = styled.View`
 const CommentBox = styled.View`
   display: flex;
   flex-direction: column;
-  margin-bottom: 10px;
 `;
 
 const CommentsBoxWrapper = styled.View``;
