@@ -11,7 +11,7 @@ const TextInputBox = ({
 }) => {
   return (
     <Wrapper>
-        <InputWrapper>
+      <InputWrapper>
         <Input
             placeholder={
               mode === 'patchComment' ? "댓글을 수정해주세요" :
@@ -32,13 +32,13 @@ const TextInputBox = ({
               <Feather name="send" size={18} color="#C51E3A" />
             </SubmitButton>
         </ActionsWrapper>
-        </InputWrapper>
+      </InputWrapper>
     </Wrapper>
   );
 };
 
 const Wrapper = styled.View`
-    background-color: #f2f2f2;
+  background-color: #f2f2f2;
 `;
 
 const InputWrapper = styled.View`
@@ -59,6 +59,8 @@ const Input = styled.TextInput`
   font-family: "Inter-Regular";
   font-size: 12px;
   padding: 1px 3px;
+  height: 60px;
+  width: 100%;
 `;
 
 const ActionsWrapper = styled.View`
@@ -74,6 +76,10 @@ const CancelText = styled.Text`
   color: #C51E3A;
 `;
 
-const SubmitButton = styled.TouchableOpacity``;
+const SubmitButton = styled.TouchableOpacity`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;
 
 export default TextInputBox;

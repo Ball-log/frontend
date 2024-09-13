@@ -265,54 +265,54 @@ export default function ComuPostedScreen() {
           </PostFooter>
           
         </ComuPostedBox>
+
+        <CommentInputBox
+          mode={mode}
+          newText={newText}
+          setNewText={setNewText}
+
+          showCommentEditBox={showCommentEditBox}
+          showReplyInputBox={showReplyInputBox}
+          showReplyEditBox={showReplyEditBox}
+
+          handlePostComment={handlePostComment}
+          handlePatchComment={handlePatchComment}
+        />
+        
+        <CommentList
+          postData={{
+            ...postData,
+            comment_list: postData.comment_list ? 
+            [...postData.comment_list].sort((a, b) => new Date(a.created_at) - new Date(b.created_at)).reverse() : 
+            [],
+          }}
+          mode={mode}
+          setMode={setMode}
+
+          newText={newText}
+          setNewText={setNewText}
+          replyText={replyText}
+          setReplyText={setReplyText}
+          selectedTextId={selectedTextId}
+          setSelectedTextId={setSelectedTextId}
+
+          showCommentEditBox={showCommentEditBox}
+          setShowCommentEditBox={setShowCommentEditBox}
+          showReplyInputBox={showReplyInputBox}
+          setShowReplyInputBox={setShowReplyInputBox}
+          showReplyEditBox={showReplyEditBox}
+          setShowReplyEditBox={setShowReplyEditBox}
+
+          handlePatchComment={handlePatchComment}
+          handlePostReply={handlePostReply}
+          handlePatchReply={handlePatchReply}
+          handleDeleteComment={handleDeleteComment}
+          handleDeleteReply={handleDeleteReply}
+          getRepliesForComment={getRepliesForComment}
+
+          onCancel={handleCancel}
+        />
       </LayoutBox>
-
-      <CommentInputBox
-        mode={mode}
-        newText={newText}
-        setNewText={setNewText}
-
-        showCommentEditBox={showCommentEditBox}
-        showReplyInputBox={showReplyInputBox}
-        showReplyEditBox={showReplyEditBox}
-
-        handlePostComment={handlePostComment}
-        handlePatchComment={handlePatchComment}
-      />
-      
-      <CommentList
-        postData={{
-          ...postData,
-          comment_list: postData.comment_list ? 
-          [...postData.comment_list].sort((a, b) => new Date(a.created_at) - new Date(b.created_at)).reverse() : 
-          [],
-        }}
-        mode={mode}
-        setMode={setMode}
-
-        newText={newText}
-        setNewText={setNewText}
-        replyText={replyText}
-        setReplyText={setReplyText}
-        selectedTextId={selectedTextId}
-        setSelectedTextId={setSelectedTextId}
-
-        showCommentEditBox={showCommentEditBox}
-        setShowCommentEditBox={setShowCommentEditBox}
-        showReplyInputBox={showReplyInputBox}
-        setShowReplyInputBox={setShowReplyInputBox}
-        showReplyEditBox={showReplyEditBox}
-        setShowReplyEditBox={setShowReplyEditBox}
-
-        handlePatchComment={handlePatchComment}
-        handlePostReply={handlePostReply}
-        handlePatchReply={handlePatchReply}
-        handleDeleteComment={handleDeleteComment}
-        handleDeleteReply={handleDeleteReply}
-        getRepliesForComment={getRepliesForComment}
-
-        onCancel={handleCancel}
-      />
     </Wrapper>
   )
 }
@@ -337,7 +337,7 @@ const BackButton = styled.TouchableOpacity`
   left: 13px;
 `;
 
-const LayoutBox = styled.View``;
+const LayoutBox = styled.ScrollView``;
 
 const ScreenTitleWrapper = styled.View`
   justify-content: center;

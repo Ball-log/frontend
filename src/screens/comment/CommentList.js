@@ -154,8 +154,8 @@ const CommentList = ({
   );
 };
 
-const ScrollContainer = styled.ScrollView`
-    flex: 1;
+const ScrollContainer = styled.View`
+  flex: 1;
 `;
 
 const CommentBox = styled.View`
