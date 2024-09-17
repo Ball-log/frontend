@@ -6,6 +6,7 @@ import { reply_api } from '../api/api-utils/reply.api';
 import { post_like_api } from '../api/api-utils/post_like.api';
 import { myPage_api } from '../api/myPage/myPage.api';
 import { board_api } from '../api/board/board.api';
+import { info_api } from '../api/api-utils/info.api';
 
 const Context = React.createContext();
 const ContextProvider = ({children}) => {
@@ -14,12 +15,9 @@ const ContextProvider = ({children}) => {
     const [postList, setPostList] = useState([{data: {}}]);
     const [myPage, setMyPage] = useState({user_background_img: null})
     const [postByDate, setPostByDate] = useState()
-    const [postBlog, setPostBlog] = useState({
-        user_icon_url: null,
-        match_info: {
-            match_date: "2017-01-01 11:11:00"
-        }
-    })
+    const [matchInfo, setMatchInfo] = useState(null)
+    const [playerInfo, setPlayerInfo] = useState(null)
+    const [selectedMatch, setSelectedMatch] = useState(null)
     
     const community_context = {
         get: async (post_id) => {
@@ -191,6 +189,35 @@ const ContextProvider = ({children}) => {
             } catch (error) {
                 //reply_error.delete(error);
             }
+        },
+        
+    }
+    const info_context = {
+        post_s3: async (req) =>{
+            try {
+                const result = await info_api.post_s3(req);
+                return result
+            } catch (error) {
+
+            }
+        },
+        get_match_info: async (date) =>{
+            console.log("in info_context.get_match_info", date);
+            try {
+                const result = await info_api.get_matchInfo(date);
+                console.log("in info_context.get_match_info", result);
+                setMatchInfo(result);
+            } catch(error) {
+
+            }
+        },
+        get_player_info: async (match_id) =>{
+            try {
+                const result = await info_api.get_player_info(match_id);
+                setPlayerInfo(result)
+            } catch(error) {
+
+            }
         }
     }
     return (
@@ -200,12 +227,17 @@ const ContextProvider = ({children}) => {
             board_context, 
             reply_context, 
             comment_context,
-            myPage_context, 
+            myPage_context,
+            info_context, 
             postData, 
             postList,
             myPage,
             postByDate,
-            postBlog }}>
+            matchInfo,
+            playerInfo,
+            selectedMatch, 
+            setSelectedMatch
+            }}>
             {children}
         </Context.Provider>
     );

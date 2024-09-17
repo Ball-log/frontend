@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import styled from "styled-components/native";
 import { colors, fonts } from "../../global";
 import RNPickerSelect from "react-native-picker-select";
@@ -17,6 +17,7 @@ import { useNavigation } from "@react-navigation/native";
 import axios from "axios";
    
 import { store } from "../../utils/secureStore";
+import { Context } from '../../context/context';
 
 const PostScreen = () => {
   
@@ -26,6 +27,8 @@ const PostScreen = () => {
   const [uploading, setUploading] = useState(false);
   const [resetKey, setResetKey] = useState(0); // 리렌더링을 위한 키
   const [token, setToken] = useState(null);
+
+  const { board_context, selectedMatch } = useContext(Context);
 
   useEffect(() => {
     async function getToken() {
@@ -116,7 +119,7 @@ const PostScreen = () => {
             title: blogData.title,
             body: blogData.content,
             img_urls: uploadedImageUrls,
-            match_id: 0,
+            match_id: selectedMatch.match_id
           }),
           ...(selectedValue === "mvp" && {
             playerId: mvpData.playerId,
@@ -152,6 +155,7 @@ const PostScreen = () => {
     } catch (error) {
       if (error.response) {
         Alert.alert("서버 오류", "서버에서 처리 중 문제가 발생했습니다.");
+        console.log(error)
       } else if (error.request) {
         console.error("Error Request:", error.request);
         Alert.alert("요청 오류", "서버에서 응답을 받지 못했습니다.");
@@ -210,10 +214,7 @@ const PostScreen = () => {
         <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
           {selectedValue === "blog" && (
             <BlogScreen
-              key={resetKey} // 강제 리렌더링을 위한 키
-              onDataChange={onDataChange}
-              blogData={blogData}
-              resetBlogData={resetBlogData}
+              
             />
           )}
           {selectedValue === "mvp" && (

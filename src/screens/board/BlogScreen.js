@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
+import { Modal, StyleSheet, View, TouchableOpacity, Image } from 'react-native';
 import styled from "styled-components/native";
 import { colors, fonts } from "../../global";
 
@@ -19,11 +20,12 @@ import {
   Keyboard,
   TouchableWithoutFeedback,
 } from "react-native";
+import { Context } from '../../context/context';
 
-const BlogScreen = ({ onDataChange }) => {
+const BlogScreen = () => {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
-  const [gameDate, setGameDate] = useState(null);
+  const [matchDate, setMatchDate] = useState(null);
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
   const [images, setImages] = useState([]);
   const [showTextOptions, setShowTextOptions] = useState(false);
@@ -34,6 +36,10 @@ const BlogScreen = ({ onDataChange }) => {
   const [textAlign, setTextAlign] = useState("left");
   const [textColor, setTextColor] = useState("#000000");
   const [textSize, setTextSize] = useState(13);
+
+  const { info_context, matchInfo, selectedMatch, setSelectedMatch } = useContext(Context);
+  const [modalVisible, setModalVisible] = useState(false)
+
 
   useEffect(() => {
     (async () => {
@@ -47,8 +53,10 @@ const BlogScreen = ({ onDataChange }) => {
     })();
   }, []);
 
-  const handleConfirm = (date) => {
-    setGameDate(date);
+  const handleConfirm =  async (date) => {
+    await info_context.get_match_info(date.toLocaleDateString('en-CA'))
+    setModalVisible(true)
+    setMatchDate(date);
     setDatePickerVisibility(false);
   };
 
@@ -139,14 +147,6 @@ const BlogScreen = ({ onDataChange }) => {
     h5: 10,
   };
 
-  useEffect(() => {
-    onDataChange({
-      title,
-      content,
-      images,
-      gameDate,
-    });
-  }, [title, content, images, gameDate]);
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
@@ -160,8 +160,8 @@ const BlogScreen = ({ onDataChange }) => {
           <ResultContainer>
             <ResultButton onPress={() => setDatePickerVisibility(true)}>
               <ResultText>
-                {gameDate
-                  ? gameDate.toLocaleDateString()
+                {selectedMatch
+                  ? `${selectedMatch.home_team_name} ${selectedMatch.home_team_score} : ${selectedMatch.away_team_score} ${selectedMatch.away_team_name}`
                   : "경기 결과를 추가하세요."}
               </ResultText>
               <FontAwesome5 name="calendar-alt" size={24} color={colors.icon} />
@@ -187,6 +187,40 @@ const BlogScreen = ({ onDataChange }) => {
             onConfirm={handleConfirm}
             onCancel={() => setDatePickerVisibility(false)}
           />
+          <Modal
+            visible={modalVisible}
+            onRequestClose={() => setModalVisible(false)}
+            transparent={true} // 배경을 투명하게 설정
+          >
+            <View style={styles.overlay}>
+              <View style={styles.modalContainer}>
+                {matchInfo ? matchInfo.map((match, index) => (
+                  <TouchableOpacity 
+                    key={index} 
+                    style={styles.Score} 
+                    onPress={() => {
+                      setModalVisible(false)
+                      setSelectedMatch(match)
+
+                      console.log("in modal, match id :", match.match_id)
+                    }}
+                  >
+                    <Image
+                      style={styles.ScoreImage}
+                      source={{ uri: match.home_team_icon_flag }}
+                    ></Image>
+                    <Text style={styles.modalButtonText}>
+                      {`${match.home_team_name} ${match.home_team_score} : ${match.away_team_score} ${match.away_team_name}`}
+                    </Text>
+                    <Image
+                      style={styles.ScoreImage}
+                      source={{ uri: match.away_team_icon_flag }}
+                    ></Image>
+                  </TouchableOpacity>
+                )) : null}
+              </View>
+            </View>
+          </Modal>
           <ElementContainer>
             <PhotoButton onPress={pickImages}>
               <Feather name="camera" size={24} color={colors.icon} />
@@ -348,6 +382,42 @@ const BlogScreen = ({ onDataChange }) => {
 };
 
 const CloseButton = styled.TouchableOpacity``;
+const styles = StyleSheet.create({
+  overlay: {
+    flex: 1, // 전체 화면을 덮도록 설정
+    justifyContent: 'center', // 세로 가운데 정렬
+    alignItems: 'center', // 가로 가운데 정렬
+    backgroundColor: 'rgba(0, 0, 0, 0.5)', // 반투명 검정색 배경
+  },
+  modalContainer: {
+    width: 300,
+    height: 400,
+    backgroundColor: 'white', // 모달 내부 배경
+    borderRadius: 10, // 모서리를 둥글게
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalButton: {
+    padding: 10,
+    backgroundColor: 'blue',
+    borderRadius: 5,
+  },
+  modalButtonText: {
+    color: 'black',
+    fontSize: 16,
+  },
+  ScoreImage: {
+    width: 59,
+    height: 71,
+  },
+  Score: {
+    width: 230,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  }
+});
+
 
 const ContentContainer = styled.View`
   padding: 16px;

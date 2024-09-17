@@ -138,7 +138,7 @@ const CheckBlog = () => {
           {showButtons && (
             <ButtonWrapper>
               <EditDeleteButton
-                onPress={() => navigation.navigate("Modify", { post_id })}
+                onPress={() => navigation.navigate("Modify", { post_id: postData.post_id })}
               >
                 <ButtonText>수정</ButtonText>
                 <MaterialCommunityIcons
