@@ -2,7 +2,6 @@ import React, { useState, useEffect, useContext } from "react";
 import { Modal, StyleSheet, View, TouchableOpacity, Image } from 'react-native';
 import styled from "styled-components/native";
 import { colors, fonts } from "../../global";
-
 import {
   AntDesign,
   FontAwesome5,
@@ -22,10 +21,8 @@ import {
 } from "react-native";
 import { Context } from '../../context/context';
 
-const BlogScreen = () => {
-  const [title, setTitle] = useState("");
-  const [content, setContent] = useState("");
-  const [matchDate, setMatchDate] = useState(null);
+const BlogScreen = ({setBoardData, boardData}) => {
+
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
   const [images, setImages] = useState([]);
   const [showTextOptions, setShowTextOptions] = useState(false);
@@ -56,7 +53,6 @@ const BlogScreen = () => {
   const handleConfirm =  async (date) => {
     await info_context.get_match_info(date.toLocaleDateString('en-CA'))
     setModalVisible(true)
-    setMatchDate(date);
     setDatePickerVisibility(false);
   };
 
@@ -147,6 +143,19 @@ const BlogScreen = () => {
     h5: 10,
   };
 
+  const handleBoard = async (tag, content) => {
+    const data = { ...boardData };
+    data.post_type = "blog"
+    if (tag === 'title') {
+      data.title = content;
+    } else if (tag === 'body') {
+      data.body = content;
+    } else if (tag === 'match_id') {
+      data.match_id = content;
+    }
+    setBoardData(data)
+    console.log(data)
+  }
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
@@ -154,8 +163,8 @@ const BlogScreen = () => {
         <ContentContainer>
           <TitleInput
             placeholder="제목을 입력해주세요."
-            value={title}
-            onChangeText={setTitle}
+            value={boardData.title}
+            onChangeText={(text) => handleBoard('title', text)}
           />
           <ResultContainer>
             <ResultButton onPress={() => setDatePickerVisibility(true)}>
@@ -169,8 +178,8 @@ const BlogScreen = () => {
           </ResultContainer>
           <ContentInput
             placeholder="오늘의 기록을 입력하세요."
-            value={content}
-            onChangeText={setContent}
+            value={boardData.body}
+            onChangeText={(text) => handleBoard('body', text)}
             multiline
             color={textColor}
             style={{
@@ -200,6 +209,7 @@ const BlogScreen = () => {
                     style={styles.Score} 
                     onPress={() => {
                       setModalVisible(false)
+                      handleBoard('match_id', match.match_id)
                       setSelectedMatch(match)
 
                       console.log("in modal, match id :", match.match_id)

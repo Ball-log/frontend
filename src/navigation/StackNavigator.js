@@ -18,6 +18,7 @@ import PostScreen from "../screens/board/PostScreen";
 import Comment from "../screens/comment/CommentScreen";
 import Modify from "../screens/board/ModifyScreen";
 
+
 const Stack = createStackNavigator();
 
 const StackNavigator = () => {

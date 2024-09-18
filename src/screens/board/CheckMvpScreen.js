@@ -122,7 +122,7 @@ const CheckMVP = () => {
           </SettingWrapper>
           {showButtons && (
             <ButtonWrapper>
-              <EditDeleteButton onPress={() => navigation.navigate("Modify")}>
+              <EditDeleteButton onPress={() => navigation.navigate("PostScreen", {type: "mvp", state: 'modify'})}>
                 <ButtonText>수정</ButtonText>
                 <MaterialCommunityIcons
                   name="pencil-outline"

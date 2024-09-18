@@ -13,55 +13,31 @@ import {
   Platform,
   Alert,
 } from "react-native";
-import { useNavigation } from "@react-navigation/native";
-import axios from "axios";
+import { useNavigation, useRoute } from "@react-navigation/native";
    
 import { store } from "../../utils/secureStore";
 import { Context } from '../../context/context';
 
 const PostScreen = () => {
-  
+  const navigation = useNavigation();
+  const route = useRoute();
   const [selectedValue, setSelectedValue] = useState("blog");
-  const [blogData, setBlogData] = useState({});
-  const [mvpData, setMvpData] = useState({});
-  const [uploading, setUploading] = useState(false);
-  const [resetKey, setResetKey] = useState(0); // 리렌더링을 위한 키
-  const [token, setToken] = useState(null);
+  const [boardData, setBoardData] = useState({});
+  const [state, setState] = useState("write");
+  const { board_context, setSelectedMatch, myPage_context, postData } = useContext(Context);
 
-  const { board_context, selectedMatch } = useContext(Context);
-
-  useEffect(() => {
-    async function getToken() {
-      console.log('Component mounted');
-      try {
-        const token = await store.get("Authorization");
-        setToken(token);  // token 값을 상태에 저장
-      } catch (error) {
-        console.error('Error get token:', error);
-      }
+  useEffect(() =>{
+    if (route.params && route.params.state === "modify") {
+      setState("modify");
+      setSelectedValue(route.params.type)
+      setBoardData(postData);
+      setSelectedMatch(postData.match_info)
     }
-
-    // 비동기 함수 호출
-    getToken();
-
-    return () => {
-      console.log('Cleanup if necessary');
-    };
-  }, []);
-
-  const resetBlogData = () => {
-    setBlogData({});
-    setResetKey((prevKey) => prevKey + 1); // 키를 변경하여 강제 리렌더링
-  };
-
-  const resetMvpData = () => {
-    setMvpData({});
-    setResetKey((prevKey) => prevKey + 1); // 키를 변경하여 강제 리렌더링
-  };
+  }, [])
 
   const onDataChange = (data) => {
     if (selectedValue === "blog") {
-      setBlogData(data);
+      setBoardData(data);
     } else if (selectedValue === "mvp") {
       setMvpData(data);
     }
@@ -89,13 +65,14 @@ const PostScreen = () => {
       return null;
     } finally {
       setUploading(false);
+      
     }
   };
 
   const submitPost = async () => {
     let uploadedImageUrls = [];
     const imagesToUpload =
-      selectedValue === "blog" ? blogData.images : mvpData.images;
+      selectedValue === "blog" ? boardData.images : mvpData.images;
 
     if (imagesToUpload && imagesToUpload.length > 0) {
       for (const image of imagesToUpload) {
@@ -107,122 +84,100 @@ const PostScreen = () => {
     }
 
     console.log("업로드된 이미지 URLs:", uploadedImageUrls);
+    const data = boardData;
+    data.img_urls = uploadedImageUrls
+    await board_context.post(data)
+    const getTodayDateInSeoul = () => {
+      const today = new Date();
+      const options = { timeZone: 'Asia/Seoul', year: 'numeric', month: '2-digit', day: '2-digit' };
+      
+      // "MM/DD/YYYY" 형식으로 변환 후, 원하는 순서로 재정렬
+      const [month, day, year] = today.toLocaleDateString('en-US', options).split('/');
+      return `${year}-${month}-${day}`;
+    };
+    await myPage_context.get_post(getTodayDateInSeoul())
+    navigation.navigate("MyPostScreen");
+    setBoardData({})
+    setSelectedMatch(false)
+    
+  };
 
-    const apiUrl = "https://api.ballog.store";
-    const endpoint = "/board/post";
-    try {
-      const response = await axios.post(
-        `${apiUrl}${endpoint}`,
-        {
-          post_type: selectedValue,
-          ...(selectedValue === "blog" && {
-            title: blogData.title,
-            body: blogData.content,
-            img_urls: uploadedImageUrls,
-            match_id: selectedMatch.match_id
-          }),
-          ...(selectedValue === "mvp" && {
-            playerId: mvpData.playerId,
-            playerRecord: mvpData.playerRecord,
-            img_urls: uploadedImageUrls,
-            match_id: 0,
-          }),
-        },
-        {
-          headers: {
-            Authorization: token,
-            "Content-Type": "application/json",
-          },
-        }
-      );
+  const handleClosePress = ()=>{
 
-      console.log("Response Status:", response.status);
-      console.log("Response Data:", response.data);
-
-      if (response.status === 200) {
-        Alert.alert("성공", "게시물이 성공적으로 업로드되었습니다!");
-
-        // 상태 초기화
-        if (selectedValue === "blog") {
-          resetBlogData();
-        } else if (selectedValue === "mvp") {
-          resetMvpData();
-        }
-        setSelectedValue("blog");
+    if (state === 'write') {
+      navigation.navigate("HomeScreen");
+      setBoardData({})
+      setSelectedMatch(false)
+    } else {
+      if (selectedValue === "blog") {
+        navigation.navigate("CheckBlog");
+        setBoardData({})
+        setSelectedMatch(false)
       } else {
-        Alert.alert("오류", "게시물을 업로드하는 중 문제가 발생했습니다.");
-      }
-    } catch (error) {
-      if (error.response) {
-        Alert.alert("서버 오류", "서버에서 처리 중 문제가 발생했습니다.");
-        console.log(error)
-      } else if (error.request) {
-        console.error("Error Request:", error.request);
-        Alert.alert("요청 오류", "서버에서 응답을 받지 못했습니다.");
-      } else {
-        console.error("Error Message:", error.message);
-        Alert.alert("오류", "요청 중 문제가 발생했습니다.");
+        navigation.navigate("CheckMVP");
+        setBoardData({})
+        setSelectedMatch(false)
       }
     }
-  };
+  }
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <Container>
         <Bar>
-          <CloseButton>
+          <CloseButton onPress={handleClosePress} >
             <AntDesign name="close" size={24} color="#33363f" />
           </CloseButton>
-          <DropdownContainer>
-            <RNPickerSelect
-              value={selectedValue}
-              items={[
-                { label: "BLOG", value: "blog" },
-                { label: "MVP", value: "mvp" },
-              ]}
-              onValueChange={(value) => setSelectedValue(value)}
-              style={{
-                inputIOS: {
-                  fontSize: fonts.sizes.medium,
-                  fontWeight: fonts.weights.regular,
-                  color: colors.text,
-                  padding: 10,
-                },
-                inputAndroid: {
-                  fontSize: fonts.sizes.medium,
-                  fontWeight: fonts.weights.regular,
-                  color: colors.text,
-                  padding: 10,
-                  width: 120,
-                },
-              }}
-            />
-            {Platform.OS === "ios" ? (
-              <AntDesign
-                name="caretdown"
-                size={12}
-                color="black"
-                style={{ marginLeft: 5, marginTop: -3 }}
+          {state === 'write' ? 
+            <DropdownContainer>
+              <RNPickerSelect
+                value={selectedValue}
+                items={[
+                  { label: "BLOG", value: "blog" },
+                  { label: "MVP", value: "mvp" },
+                ]}
+                onValueChange={(value) => setSelectedValue(value)}
+                style={{
+                  inputIOS: {
+                    fontSize: fonts.sizes.medium,
+                    fontWeight: fonts.weights.regular,
+                    color: colors.text,
+                    padding: 10,
+                  },
+                  inputAndroid: {
+                    fontSize: fonts.sizes.medium,
+                    fontWeight: fonts.weights.regular,
+                    color: colors.text,
+                    padding: 10,
+                    width: 120,
+                  },
+                }}
               />
-            ) : null}
-          </DropdownContainer>
+              {Platform.OS === "ios" ? (
+                <AntDesign
+                  name="caretdown"
+                  size={12}
+                  color="black"
+                  style={{ marginLeft: 5, marginTop: -3 }}
+                />
+              ) : null}
+            </DropdownContainer>  : null
+          }
           <PostButton onPress={submitPost}>
-            <ButtonText>등록하기</ButtonText>
+            <ButtonText>{state === 'write' ? '등록하기' : '수정하기'}</ButtonText>
           </PostButton>
         </Bar>
 
         <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
           {selectedValue === "blog" && (
             <BlogScreen
-              
+              boardData={boardData}
+              setBoardData={setBoardData}
             />
           )}
           {selectedValue === "mvp" && (
             <MvpScreen
-              key={resetKey} // 강제 리렌더링을 위한 키
-              onDataChange={onDataChange}
-              mvpData={mvpData}
-              resetMvpData={resetMvpData}
+
             />
           )}
         </ScrollView>
