@@ -16,8 +16,6 @@ import CheckBlog from "../screens/board/CheckBlogScreen";
 import CheckMVP from "../screens/board/CheckMvpScreen";
 import PostScreen from "../screens/board/PostScreen";
 import Comment from "../screens/comment/CommentScreen";
-import Modify from "../screens/board/ModifyScreen";
-
 
 const Stack = createStackNavigator();
 
@@ -65,7 +63,6 @@ const StackNavigator = () => {
         <Stack.Screen name="CheckMVP" component={CheckMVP} />
         <Stack.Screen name="PostScreen" component={PostScreen} />
         <Stack.Screen name="Comment" component={Comment} />
-        <Stack.Screen name="Modify" component={Modify} />
       </Stack.Navigator>
     </NavigationContainer>
   );

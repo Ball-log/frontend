@@ -105,7 +105,7 @@ const PostScreen = () => {
   const handleClosePress = ()=>{
 
     if (state === 'write') {
-      navigation.navigate("HomeScreen");
+      navigation.navigate("홈");
       setBoardData({})
       setSelectedMatch(false)
     } else {
