@@ -20,6 +20,12 @@ import { Context } from '../../context/context';
 
 const CheckBlog = () => {
   const { board_context, myPage, postByDate, postData } = useContext(Context);
+
+  useEffect(() => {
+    // postData가 변경될 때마다 실행되는 로직
+    console.log("postData가 변경되었습니다:", postData);
+  }, [postData]);
+
   const [showButtons, setShowButtons] = useState(false);
   console.log("in CheckBlogScreen, postData: ", postData)
   const createdDate = postData.match_info
@@ -125,6 +131,7 @@ const CheckBlog = () => {
         </BackButton>
         <UserWrapper>
           <FileIcon source={require("../../assets/Order.png")} />
+          {console.log("in user name", postData)}
           <UserName>{postData ? postData.user_name : "Loading..."}</UserName>
         </UserWrapper>
       </UserHeader>
@@ -138,7 +145,7 @@ const CheckBlog = () => {
           {showButtons && (
             <ButtonWrapper>
               <EditDeleteButton
-                onPress={() => navigation.navigate("Modify", { post_id })}
+                onPress={() => navigation.navigate("PostScreen", {type: "blog", state: 'modify'})}
               >
                 <ButtonText>수정</ButtonText>
                 <MaterialCommunityIcons
@@ -176,7 +183,7 @@ const CheckBlog = () => {
             </ScoreDate>
             <Score>
               <ScoreImage
-                source={{uri: postData.match_info.home_team_icon_flag }}
+                source={{uri: postData.match_info ? postData.match_info.home_team_icon_flag : "Loading..."}}
               />
               <ScoreNum>
                 {postData.match_info ? postData.match_info.home_team_score : "Loading..."}{" "}
@@ -184,7 +191,7 @@ const CheckBlog = () => {
                 {postData.match_info ? postData.match_info.away_team_score : "Loading..."}
               </ScoreNum>
               <ScoreImage
-                source={{uri: postData.match_info.away_team_icon_flag }}
+                source={{uri: postData.match_info ? postData.match_info.away_team_icon_flag : "Loading..."}}
               />
             </Score>
           </ScoreWrapper>

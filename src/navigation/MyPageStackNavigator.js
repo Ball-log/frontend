@@ -5,6 +5,7 @@ import MyPageScreen from "../screens/myPage/MyPageScreen";
 import SettingScreen from "../screens/myPage/SettingScreen";
 import LogoutScreen from "../screens/myPage/LogoutScreen";
 import MyPostScreen from "../screens/myPage/MyPostScreen";
+import HomeScreen from "../screens/HomeScreen";
 
 const Stack = createStackNavigator();
 
@@ -17,6 +18,7 @@ const MyPageStackNavigator = ( {route}) => {
       <Stack.Screen name="SettingScreen" component={SettingScreen} initialParams={{ team, profileImgUrl }} />
       <Stack.Screen name="LogoutScreen" component={LogoutScreen} />
       <Stack.Screen name="MyPostScreen" component={MyPostScreen} />
+      <Stack.Screen name="HomeScreen" component={HomeScreen} />
     </Stack.Navigator>
   );
 };

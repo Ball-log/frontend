@@ -19,7 +19,7 @@ import {
   TouchableWithoutFeedback,
 } from "react-native";
 
-const MVPScreen = ({ onDataChange }) => {
+const MVPScreen = () => {
   const [playerId, setPlayerId] = useState(0);
   const [playerRecord, setPlayerRecord] = useState("");
   const [gameDate, setGameDate] = useState(null);
@@ -168,14 +168,6 @@ const MVPScreen = ({ onDataChange }) => {
     h4: 15,
     h5: 10,
   };
-
-  useEffect(() => {
-    onDataChange({
-      playerId,
-      playerRecord,
-      images,
-    });
-  }, [playerId, playerRecord, images]);
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
